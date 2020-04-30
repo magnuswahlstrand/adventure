@@ -7,13 +7,13 @@ import (
 )
 
 const (
-	gridSize = 10
+	gridSize = 8
 )
 
 func (g *Game) drawGrid(screen *ebiten.Image) {
-	for iy := float64(0); iy < 10; iy++ {
-		for ix := float64(0); ix < 10; ix++ {
-			ebitenutil.DrawRect(screen, 1+gridSize*ix, 1+gridSize*iy, gridSize-2, gridSize-2, colornames.Yellow)
+	for iy := float64(0); iy < 6; iy++ {
+		for ix := float64(0); ix < 6; ix++ {
+			ebitenutil.DrawRect(screen, (gridSize+1)*ix+1, (gridSize+1)*iy+1, gridSize, gridSize, colornames.Darkgoldenrod)
 		}
 	}
 }
