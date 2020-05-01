@@ -1,9 +1,14 @@
 package translation
 
 import (
+	"github.com/hajimehoshi/ebiten"
+	"github.com/hajimehoshi/ebiten/inpututil"
+	"github.com/kyeett/single-player-game/internal/command"
 	"github.com/kyeett/single-player-game/internal/comp"
+	"github.com/kyeett/single-player-game/internal/entitymanager"
 	"github.com/kyeett/single-player-game/internal/logger"
 	"github.com/kyeett/single-player-game/internal/system"
+	"github.com/kyeett/single-player-game/internal/unit"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
@@ -13,14 +18,17 @@ var _ system.System = &Translation{}
 type Translation struct {
 	entities   map[comp.ID]TranslatableEntity
 	logger     *zap.SugaredLogger
-	lifeCycler EntityLifeCycler
+	lifeCycler entitymanager.EntityLifeCycler
+
+	player *unit.Player
 }
 
-func NewTranslation(logLevel zapcore.Level, lifeCycler EntityLifeCycler) *Translation {
+func NewTranslation(logLevel zapcore.Level, lifeCycler entitymanager.EntityLifeCycler, player *unit.Player) *Translation {
 	return &Translation{
 		entities:   map[comp.ID]TranslatableEntity{},
 		logger:   logger.NewNamed("transl", logLevel, logger.Yellow),
 		lifeCycler: lifeCycler,
+		player: player,
 	}
 }
 
@@ -39,7 +47,24 @@ func (s *TranslatableEntity) GetSource() interface{} {
 	return s.source
 }
 
-func (s *Translation) Update(_ float64) {}
+func (s *Translation) handleInput() interface{} {
+	switch {
+	case inpututil.IsKeyJustPressed(ebiten.KeyRight):
+		return command.MoveBy2(s.player, 1, 0)
+	case inpututil.IsKeyJustPressed(ebiten.KeyLeft):
+		return command.MoveBy2(s.player, -1, 0)
+	case inpututil.IsKeyJustPressed(ebiten.KeyUp):
+		return command.MoveBy2(s.player, 0, -1)
+	case inpututil.IsKeyJustPressed(ebiten.KeyDown):
+		return command.MoveBy2(s.player, 0, 1)
+	}
+	return nil
+}
+
+func (s *Translation) Update() []*command.Command {
+	commands := s.handleInput()
+	return s.Translate(commands)
+}
 
 func (s *Translation) Add(v interface{}) {
 	i, ok := v.(Translatable)

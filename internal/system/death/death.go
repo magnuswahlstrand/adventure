@@ -1,24 +1,18 @@
 package death
 
 import (
-	"github.com/kyeett/single-player-game/internal/comp"
+	"github.com/kyeett/single-player-game/internal/command"
+	"github.com/kyeett/single-player-game/internal/entitymanager"
 )
 
-func (s *Death) Update(_ float64) {
+func (s *Death) Update() []*command.Command{
+	var commands []*command.Command
 
 	// Find entities that have 0 or negative hit points
-	var ids []comp.ID
-	for id, s := range s.entities {
-		if s.Hitpoints.Amount <= 0 {
-
-			// Mark for removing
-			ids = append(ids, id)
+	for id, e := range s.entities {
+		if e.Hitpoints.Amount <= 0 {
+			commands = append(commands, entitymanager.RemoveCommand(s.lifeCycler, id))
 		}
 	}
-
-	// Remove
-	for _, id := range ids {
-		s.logger.Info("remove entity " + string(id))
-		s.lifeCycler.Remove(id)
-	}
+	return commands
 }

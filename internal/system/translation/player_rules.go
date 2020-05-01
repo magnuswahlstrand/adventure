@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/kyeett/single-player-game/internal/command"
 	"github.com/kyeett/single-player-game/internal/comp"
+	"github.com/kyeett/single-player-game/internal/entitymanager"
 	"github.com/kyeett/single-player-game/internal/unit"
 )
 
@@ -25,7 +26,7 @@ func (s *Translation) playerWithItem(player TranslatableEntity, item Translatabl
 	var commands []*command.Command
 
 	// Remove item
-	commands = append(commands, s.RemoveCommand(item.ID, item.source))
+	commands = append(commands, entitymanager.RemoveCommand(s.lifeCycler, item.ID))
 	return commands
 }
 
@@ -36,10 +37,10 @@ func (s *Translation) playerWithChest(player TranslatableEntity, chest Translata
 	item := unit.NewItem(chest.Position.X, chest.Position.Y)
 
 	// Remove chest
-	commands = append(commands, s.RemoveCommand(chest.ID, chest.source))
+	commands = append(commands, entitymanager.RemoveCommand(s.lifeCycler, chest.ID))
 
 	// Add item
-	commands = append(commands, s.AddCommand(item.ID, item))
+	commands = append(commands, entitymanager.AddCommand(s.lifeCycler, item.ID, item))
 	return commands
 }
 

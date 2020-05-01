@@ -15,6 +15,7 @@
 
 Done
 * [ ] Refactor command handling
+  * [ ] Undo multiple steps
 * [x] Store assests as go code
 * [x] Generate wasm-version
 

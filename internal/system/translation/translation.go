@@ -9,11 +9,6 @@ import (
 	"log"
 )
 
-type EntityLifeCycler interface {
-	Add(v interface{})
-	Remove(id comp.ID)
-}
-
 var (
 	TheWall = TranslatableEntity{Entity: comp.Entity{Type: comp.TypeWall}}
 	TheNil  = TranslatableEntity{Entity: comp.Entity{Type: comp.TypeNil}}
@@ -84,30 +79,4 @@ func (s *Translation) interact(actor TranslatableEntity, target TranslatableEnti
 	}
 
 	return nil
-}
-
-func (s *Translation) RemoveCommand(id comp.ID, target interface{}) *command.Command {
-	execute := func() error {
-		s.logger.Info(fmt.Sprintf("remove %v", target))
-		s.lifeCycler.Remove(id)
-		return nil
-	}
-	undo := func() {
-		s.logger.Info(fmt.Sprintf("readd %v", target))
-		s.lifeCycler.Add(target)
-	}
-	return &command.Command{execute, undo, fmt.Sprintf("Remove entity")}
-}
-
-func (s *Translation) AddCommand(id comp.ID, target interface{}) *command.Command {
-	execute := func() error {
-		s.logger.Info(fmt.Sprintf( "Add %v", target))
-		s.lifeCycler.Add(target)
-		return nil
-	}
-	undo := func() {
-		s.logger.Info(fmt.Sprintf( "Remove %v", target))
-		s.lifeCycler.Remove(id)
-	}
-	return &command.Command{execute, undo, fmt.Sprintf("Add entity")}
 }

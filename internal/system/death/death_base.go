@@ -2,6 +2,7 @@ package death
 
 import (
 	"github.com/kyeett/single-player-game/internal/comp"
+	"github.com/kyeett/single-player-game/internal/entitymanager"
 	"github.com/kyeett/single-player-game/internal/logger"
 	"github.com/kyeett/single-player-game/internal/system"
 	"go.uber.org/zap"
@@ -11,12 +12,12 @@ import (
 var _ system.System = &Death{}
 
 type Death struct {
-	entities   map[comp.ID]DeathC
-	logger     *zap.SugaredLogger
-	lifeCycler EntityLifeCycler
+	entities map[comp.ID]DeathC
+	logger   *zap.SugaredLogger
+	lifeCycler entitymanager.EntityLifeCycler
 }
 
-func NewSystem(logLevel zapcore.Level, lifeCycler EntityLifeCycler) *Death {
+func NewSystem(logLevel zapcore.Level, lifeCycler entitymanager.EntityLifeCycler) *Death {
 	return &Death{
 		entities:   map[comp.ID]DeathC{},
 		logger:     logger.NewNamed("death", logLevel, logger.BrightBlack),
@@ -40,7 +41,7 @@ func (s *Death) Add(v interface{}) {
 		return
 	}
 	e := DeathC{
-		Entity:   i.GetEntity(),
+		Entity:    i.GetEntity(),
 		Hitpoints: i.GetHitpoints(),
 	}
 	s.logger.Info("entity added")

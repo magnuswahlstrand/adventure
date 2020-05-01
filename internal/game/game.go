@@ -20,6 +20,16 @@ type Game struct {
 	translation   *translation.Translation
 	systems       []system.System
 	rendersystems []rendersystem.System
+	lookup map[comp.ID]interface{}
+}
+
+func (g *Game) FindEntityByID(id comp.ID) interface{} {
+	e, found := g.lookup[id]
+	if !found {
+		log.Fatal("not found")
+	}
+
+	return e
 }
 
 type GameState struct {
@@ -39,9 +49,10 @@ func NewGame() *Game {
 		rendersystems: []rendersystem.System{
 			rendersystem.NewRender(zap.InfoLevel),
 		},
+		lookup: map[comp.ID]interface{}{},
 	}
 
-	trans := translation.NewTranslation(zap.InfoLevel, g)
+	trans := translation.NewTranslation(zap.InfoLevel, g, p)
 	systems := []system.System{
 		trans,
 		death.NewSystem(zap.InfoLevel, g),
@@ -58,6 +69,16 @@ func NewGame() *Game {
 }
 
 func (g *Game) Add(v interface{}) {
+	type Entity interface{
+		GetEntity() comp.Entity
+	}
+
+	e, valid := v.(Entity)
+	if !valid {
+		log.Fatal("not an entity")
+	}
+	g.lookup[e.GetEntity().ID] = e
+
 	for _, s := range g.systems {
 		s.Add(v)
 	}
@@ -82,39 +103,28 @@ func NewGameState(p *unit.Player) *GameState {
 	}
 }
 
-func (g *Game) handleInput() interface{} {
+
+
+func (g *Game) Update(_ *ebiten.Image) error {
+
+
+
+	// Handle input
 	if inpututil.IsKeyJustPressed(ebiten.KeyZ) {
 		g.undo()
 		return nil
 	}
 
-	switch {
-	case inpututil.IsKeyJustPressed(ebiten.KeyRight):
-		return command.MoveBy2(g.player, 1, 0)
-	case inpututil.IsKeyJustPressed(ebiten.KeyLeft):
-		return command.MoveBy2(g.player, -1, 0)
-	case inpututil.IsKeyJustPressed(ebiten.KeyUp):
-		return command.MoveBy2(g.player, 0, -1)
-	case inpututil.IsKeyJustPressed(ebiten.KeyDown):
-		return command.MoveBy2(g.player, 0, 1)
-	}
-
-	return nil
-}
-
-func (g *Game) Update(_ *ebiten.Image) error {
-
-	// Handle input
-	command := g.handleInput()
+	//command := g.handleInput()
 
 	// Translate input to commands
-	commands := g.translation.Translate(command)
+	//commands := g.translation.Translate(command)
 
 	// Execute commands
-	g.execute(commands)
 
 	for _, s := range g.systems {
-		s.Update(0)
+		commands := s.Update()
+		g.execute(commands)
 	}
 
 	return nil
