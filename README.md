@@ -2,8 +2,8 @@
 
 ## Roadmap
 
-
 ### v0.3
+
 #### Gameplay
 * [ ] Hit monsters
 * [ ] Kill monsters
@@ -23,6 +23,10 @@
 
 #### Multiplayer
 * [ ] Broadcast commands
+
+### Bugs
+* [ ] Steps increased on border
+
 ---
 
 ### Completed

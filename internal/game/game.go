@@ -1,7 +1,6 @@
 package game
 
 import (
-	"fmt"
 	"github.com/hajimehoshi/ebiten"
 	"github.com/hajimehoshi/ebiten/inpututil"
 	"github.com/kyeett/single-player-game/internal/command"
@@ -20,7 +19,7 @@ type Game struct {
 	translation   *translation.Translation
 	systems       []system.System
 	rendersystems []rendersystem.System
-	lookup map[comp.ID]interface{}
+	lookup        map[comp.ID]interface{}
 }
 
 func (g *Game) FindEntityByID(id comp.ID) interface{} {
@@ -71,7 +70,7 @@ func NewGame() *Game {
 }
 
 func (g *Game) Add(v interface{}) {
-	type Entity interface{
+	type Entity interface {
 		GetEntity() comp.Entity
 	}
 
@@ -100,11 +99,9 @@ func (g *Game) Remove(id comp.ID) {
 
 func NewGameState() *GameState {
 	return &GameState{
-		stack:  []*command.Command{},
+		stack: []*command.Command{},
 	}
 }
-
-
 
 func (g *Game) Update(_ *ebiten.Image) error {
 	g.GameState.updatedThisIteration = false
@@ -125,7 +122,7 @@ func (g *Game) Update(_ *ebiten.Image) error {
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
-	return outsideWidth / 5, outsideHeight / 5
+	return outsideWidth / 2, outsideHeight / 2
 }
 
 func (g *Game) execute(commands []*command.Command) {
@@ -145,9 +142,9 @@ func (g *Game) execute(commands []*command.Command) {
 	}
 }
 
+// TODO: Hard to understand. Clean up
 func (g *Game) undo() {
-	fmt.Println("undo", len(g.stack))
-	size := len(g.stack)-1
+	size := len(g.stack) - 1
 	if size < 0 {
 		return
 	}
@@ -156,19 +153,16 @@ func (g *Game) undo() {
 	n := size
 	for {
 		if n < 0 {
-			fmt.Println("break n", n, size)
 			break
 		}
 
 		if g.stack[n].Step != firstStep {
-			fmt.Println("break step")
 			break
 		}
 
 		updated = true
 
-		c := g.stack[n]
-		c.Undo()
+		g.stack[n].Undo()
 		g.stack[n] = nil
 		g.stack = g.stack[:n]
 		n--
