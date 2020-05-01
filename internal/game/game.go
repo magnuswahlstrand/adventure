@@ -33,8 +33,10 @@ func (g *Game) FindEntityByID(id comp.ID) interface{} {
 }
 
 type GameState struct {
-	stack  []*command.Command
-	player *unit.Player
+	stack                []*command.Command
+	updatedThisIteration bool
+	step                 int64
+	turn                 int64
 }
 
 func NewGame() *Game {
@@ -45,7 +47,7 @@ func NewGame() *Game {
 	c := unit.NewChest(1, 1)
 
 	g := &Game{
-		GameState: NewGameState(p),
+		GameState: NewGameState(),
 		rendersystems: []rendersystem.System{
 			rendersystem.NewRender(zap.InfoLevel),
 		},
@@ -96,37 +98,29 @@ func (g *Game) Remove(id comp.ID) {
 	}
 }
 
-func NewGameState(p *unit.Player) *GameState {
+func NewGameState() *GameState {
 	return &GameState{
 		stack:  []*command.Command{},
-		player: p,
 	}
 }
 
 
 
 func (g *Game) Update(_ *ebiten.Image) error {
-
-
+	g.GameState.updatedThisIteration = false
 
 	// Handle input
 	if inpututil.IsKeyJustPressed(ebiten.KeyZ) {
 		g.undo()
-		return nil
 	}
-
-	//command := g.handleInput()
-
-	// Translate input to commands
-	//commands := g.translation.Translate(command)
-
-	// Execute commands
 
 	for _, s := range g.systems {
 		commands := s.Update()
 		g.execute(commands)
 	}
 
+	g.incrementStep()
+	g.incrementRound()
 	return nil
 }
 
@@ -139,27 +133,66 @@ func (g *Game) execute(commands []*command.Command) {
 		return
 	}
 
+	// Mark update as true
+	g.GameState.updatedThisIteration = true
+
 	for _, c := range commands {
 		if err := c.Execute(); err != nil {
 			log.Fatal(err)
 		}
+		c.Step = g.GameState.step
 		g.stack = append(g.stack, c)
 	}
 }
 
 func (g *Game) undo() {
-	n := len(g.stack) - 1
-	if n < 0 {
+	fmt.Println("undo", len(g.stack))
+	size := len(g.stack)-1
+	if size < 0 {
 		return
 	}
-	c := g.stack[n]
+	var updated bool
+	firstStep := g.stack[size].Step
+	n := size
+	for {
+		if n < 0 {
+			fmt.Println("break n", n, size)
+			break
+		}
 
-	fmt.Println("undo", c.Name)
-	c.Undo()
+		if g.stack[n].Step != firstStep {
+			fmt.Println("break step")
+			break
+		}
 
-	// Remove from stack
-	g.stack[n] = nil
-	g.stack = g.stack[:n]
+		updated = true
+
+		c := g.stack[n]
+		c.Undo()
+		g.stack[n] = nil
+		g.stack = g.stack[:n]
+		n--
+	}
+
+	if updated {
+		g.GameState.step--
+	}
+}
+
+func (g *Game) incrementStep() {
+	if g.GameState.updatedThisIteration {
+		g.GameState.step++
+	}
+}
+
+const stepsPerTurn = 5
+
+func (g *Game) incrementRound() {
+	if g.GameState.step > stepsPerTurn {
+		g.GameState.step = 0
+		g.GameState.turn++
+		g.GameState.stack = nil
+	}
 }
 
 var _ ebiten.Game = &Game{}

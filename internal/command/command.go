@@ -15,6 +15,7 @@ type Command struct {
 	Execute func() error
 	Undo    func()
 	Name    string
+	Step    int64
 }
 
 type Movable interface {
@@ -36,12 +37,12 @@ func MoveBy(unit Movable, dx, dy int) *Command {
 		pos.X = x0
 		pos.Y = y0
 	}
-	return &Command{execute, undo, fmt.Sprintf("MoveBy(%d,%d)", dx, dy)}
+	return &Command{execute, undo, fmt.Sprintf("MoveBy(%d,%d)", dx, dy), -1}
 }
 
 type MoveTo struct {
-	ActorID  comp.ID
-	Target *comp.Position
+	ActorID comp.ID
+	Target  *comp.Position
 }
 
 func MoveBy2(unit Movable, dx, dy int) MoveTo {
@@ -49,8 +50,8 @@ func MoveBy2(unit Movable, dx, dy int) MoveTo {
 	x0, y0 := pos.X, pos.Y
 
 	return MoveTo{
-		ActorID:  unit.GetEntity().ID,
-		Target: comp.P(x0+dx, y0+dy),
+		ActorID: unit.GetEntity().ID,
+		Target:  comp.P(x0+dx, y0+dy),
 	}
 }
 
@@ -68,5 +69,5 @@ func MoveToCommand(unit Movable, target *comp.Position) *Command {
 		pos.X = x0
 		pos.Y = y0
 	}
-	return &Command{execute, undo, fmt.Sprintf("MoveTo(%d,%d)", target.X, target.Y)}
+	return &Command{execute, undo, fmt.Sprintf("MoveTo(%d,%d)", target.X, target.Y), -1}
 }

@@ -22,7 +22,7 @@ func RemoveCommand(lifeCycler EntityLifeCycler, id comp.ID) *command.Command {
 	undo := func() {
 		lifeCycler.Add(e)
 	}
-	return &command.Command{execute, undo, fmt.Sprintf("Remove entity")}
+	return &command.Command{execute, undo, fmt.Sprintf("Remove entity"),-1}
 }
 
 func AddCommand(lifeCycler EntityLifeCycler, id comp.ID, target interface{}) *command.Command {
@@ -34,5 +34,5 @@ func AddCommand(lifeCycler EntityLifeCycler, id comp.ID, target interface{}) *co
 	undo := func() {
 		lifeCycler.Remove(id)
 	}
-	return &command.Command{execute, undo, fmt.Sprintf("Add entity")}
+	return &command.Command{execute, undo, fmt.Sprintf("Add entity"), -1}
 }

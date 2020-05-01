@@ -49,7 +49,7 @@ func NewEnemyRat(x, y int) *Enemy {
 		},
 		comp.P(x, y),
 		comp.SpriteEnemyRat,
-		comp.HP(0),
+		comp.HP(2),
 	}
 }
 

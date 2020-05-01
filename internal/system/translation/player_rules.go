@@ -27,6 +27,9 @@ func (s *Translation) playerWithItem(player TranslatableEntity, item Translatabl
 
 	// Remove item
 	commands = append(commands, entitymanager.RemoveCommand(s.lifeCycler, item.ID))
+
+	// Take position of item
+	commands = append(commands, command.MoveToCommand(player, item.Position))
 	return commands
 }
 

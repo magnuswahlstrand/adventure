@@ -1,6 +1,7 @@
 package game
 
 import (
+	"fmt"
 	"github.com/hajimehoshi/ebiten"
 	"github.com/hajimehoshi/ebiten/ebitenutil"
 	"golang.org/x/image/colornames"
@@ -19,7 +20,9 @@ func (g *Game) drawGrid(screen *ebiten.Image) {
 }
 
 func (g *Game) Draw(screen *ebiten.Image) {
-	ebitenutil.DebugPrintAt(screen, "press 'z' to undo", 10		,70)
+	ebitenutil.DebugPrintAt(screen, "press 'z' to undo", 10, 70)
+	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("step: %d", g.GameState.step), 60, 0)
+	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("turn: %d", g.GameState.turn), 60, 15)
 	g.drawGrid(screen)
 
 	for _, rs := range g.rendersystems {
