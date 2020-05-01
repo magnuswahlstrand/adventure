@@ -8,6 +8,8 @@ import (
 	"github.com/kyeett/single-player-game/internal/comp"
 	"github.com/kyeett/single-player-game/internal/rendersystem"
 	"github.com/kyeett/single-player-game/internal/system"
+	"github.com/kyeett/single-player-game/internal/system/death"
+	"github.com/kyeett/single-player-game/internal/system/translation"
 	"github.com/kyeett/single-player-game/internal/unit"
 	"go.uber.org/zap"
 	"log"
@@ -15,7 +17,7 @@ import (
 
 type Game struct {
 	*GameState
-	translation   *system.Translation
+	translation   *translation.Translation
 	systems       []system.System
 	rendersystems []rendersystem.System
 }
@@ -27,25 +29,23 @@ type GameState struct {
 
 func NewGame() *Game {
 
-	logger, err := zap.NewDevelopment()
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	p := unit.NewPlayer(0,0)
-	e := unit.NewEnemySnake(2,2)
-	e2 := unit.NewEnemyRat(5,0)
-	c := unit.NewChest(1,1)
+	p := unit.NewPlayer(0, 0)
+	e := unit.NewEnemySnake(2, 2)
+	e2 := unit.NewEnemyRat(5, 0)
+	c := unit.NewChest(1, 1)
 
 	g := &Game{
 		GameState: NewGameState(p),
 		rendersystems: []rendersystem.System{
-			rendersystem.NewRender(logger),
+			rendersystem.NewRender(zap.InfoLevel),
 		},
 	}
 
-	trans := system.NewTranslation(logger, g)
-	systems := []system.System{trans}
+	trans := translation.NewTranslation(zap.InfoLevel, g)
+	systems := []system.System{
+		trans,
+		death.NewSystem(zap.InfoLevel, g),
+	}
 	g.translation = trans
 	g.systems = systems
 
@@ -56,8 +56,6 @@ func NewGame() *Game {
 
 	return g
 }
-
-
 
 func (g *Game) Add(v interface{}) {
 	for _, s := range g.systems {
@@ -115,6 +113,10 @@ func (g *Game) Update(_ *ebiten.Image) error {
 	// Execute commands
 	g.execute(commands)
 
+	for _, s := range g.systems {
+		s.Update(0)
+	}
+
 	return nil
 }
 
@@ -128,7 +130,6 @@ func (g *Game) execute(commands []*command.Command) {
 	}
 
 	for _, c := range commands {
-		fmt.Println("exec", c.Name)
 		if err := c.Execute(); err != nil {
 			log.Fatal(err)
 		}

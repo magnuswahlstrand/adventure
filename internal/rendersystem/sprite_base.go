@@ -2,22 +2,23 @@ package rendersystem
 
 import (
 	"github.com/kyeett/single-player-game/internal/comp"
+	"github.com/kyeett/single-player-game/internal/logger"
 	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 )
 
 var _ System = &Render{}
 
 // Render is responsible for drawing entities to the screen
 type Render struct {
-	//em  *entity.Manager
 	entities map[comp.ID]DrawableEntity
-	logger   *zap.Logger
+	logger   *zap.SugaredLogger
 }
 
-func NewRender(logger *zap.Logger) *Render {
+func NewRender(logLevel zapcore.Level) *Render {
 	return &Render{
 		entities: map[comp.ID]DrawableEntity{},
-		logger:   logger,
+		logger:   logger.NewNamed("sprite", logLevel),
 	}
 }
 

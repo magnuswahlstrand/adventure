@@ -40,7 +40,7 @@ func MoveBy(unit Movable, dx, dy int) *Command {
 }
 
 type MoveTo struct {
-	Actor  Movable
+	ActorID  comp.ID
 	Target *comp.Position
 }
 
@@ -49,7 +49,7 @@ func MoveBy2(unit Movable, dx, dy int) MoveTo {
 	x0, y0 := pos.X, pos.Y
 
 	return MoveTo{
-		Actor:  unit,
+		ActorID:  unit.GetEntity().ID,
 		Target: comp.P(x0+dx, y0+dy),
 	}
 }
