@@ -1,5 +1,32 @@
 
 
-Feature plans
+## Roadmap
+
+
+### v0.2
+#### Gameplay
+* [ ] Hit monsters
+* [ ] Kill monsters
+* [ ] Inventory with key
+* [ ] Open doors with key
+* [ ] Some sort of goal, and end of game
+
+#### System
+
+Done
 * [x] Store assests as go code
-* [ ] Generate wasm-version
+* [x] Generate wasm-version
+
+
+### Future (v0.x)
+
+#### System
+* [ ] Clean up entity handling
+* [ ] Save game
+* [ ] Replay
+
+#### Multiplayer
+* [ ] Broadcast commands
+---
+
+

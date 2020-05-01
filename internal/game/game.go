@@ -5,6 +5,7 @@ import (
 	"github.com/hajimehoshi/ebiten"
 	"github.com/hajimehoshi/ebiten/inpututil"
 	"github.com/kyeett/single-player-game/internal/command"
+	"github.com/kyeett/single-player-game/internal/comp"
 	"github.com/kyeett/single-player-game/internal/rendersystem"
 	"github.com/kyeett/single-player-game/internal/system"
 	"github.com/kyeett/single-player-game/internal/unit"
@@ -67,12 +68,12 @@ func (g *Game) Add(v interface{}) {
 	}
 }
 
-func (g *Game) Remove(v interface{}) {
+func (g *Game) Remove(id comp.ID) {
 	for _, s := range g.systems {
-		s.Remove(v)
+		s.Remove(id)
 	}
 	for _, rs := range g.rendersystems {
-		rs.Remove(v)
+		rs.Remove(id)
 	}
 }
 
