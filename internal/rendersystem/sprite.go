@@ -16,6 +16,20 @@ type Render struct {
 	logger   *zap.Logger
 }
 
+func (r *Render) Remove(v interface{}) {
+	e, ok := v.(comp.Removable)
+	if !ok {
+		return
+	}
+	id := e.GetID()
+	for i, e := range r.entities {
+		if e.GetEntity().ID == id {
+			r.entities = append(r.entities[:i], r.entities[i+1:]...)
+			return
+		}
+	}
+}
+
 func NewRender(logger *zap.Logger) *Render{
 	return   &Render{
 		entities: []Drawable{},
@@ -37,6 +51,7 @@ func (r *Render) Draw(screen *ebiten.Image) {
 }
 
 type Drawable interface {
+	GetEntity() comp.Entity
 	GetPosition() *comp.Position
 	GetSprite() *comp.Sprite
 }

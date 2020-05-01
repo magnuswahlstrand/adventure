@@ -17,6 +17,8 @@ const (
 	TypeWall        = "wall"
 	TypeEnemy       = "enemy"
 	TypePlayer      = "player"
+	TypeChest       = "chest"
+	TypeItem        = "item"
 )
 
 var (
@@ -33,6 +35,10 @@ func (b Entity) GetID() ID {
 
 func (b Entity) GetEntity() Entity {
 	return b
+}
+
+type Removable interface {
+	GetID() ID
 }
 
 func NewID() ID {

@@ -19,6 +19,7 @@ func (g *Game) drawGrid(screen *ebiten.Image) {
 }
 
 func (g *Game) Draw(screen *ebiten.Image) {
+	ebitenutil.DebugPrintAt(screen, "press 'z' to undo", 10		,70)
 	g.drawGrid(screen)
 
 	for _, rs := range g.rendersystems {

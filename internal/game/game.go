@@ -31,25 +31,27 @@ func NewGame() *Game {
 		log.Fatal(err)
 	}
 
-	trans := system.NewTranslation(logger)
-
-	p := unit.NewPlayer()
-	e := unit.NewEnemy()
+	p := unit.NewPlayer(0,0)
+	e := unit.NewEnemySnake(2,2)
+	e2 := unit.NewEnemyRat(5,0)
+	c := unit.NewChest(1,1)
 
 	g := &Game{
 		GameState: NewGameState(p),
 		rendersystems: []rendersystem.System{
 			rendersystem.NewRender(logger),
 		},
-		systems: []system.System{
-			trans,
-		},
-		translation: trans,
 	}
 
+	trans := system.NewTranslation(logger, g)
+	systems := []system.System{trans}
+	g.translation = trans
+	g.systems = systems
 
 	g.Add(p)
 	g.Add(e)
+	g.Add(e2)
+	g.Add(c)
 
 	return g
 }
@@ -62,6 +64,15 @@ func (g *Game) Add(v interface{}) {
 	}
 	for _, rs := range g.rendersystems {
 		rs.Add(v)
+	}
+}
+
+func (g *Game) Remove(v interface{}) {
+	for _, s := range g.systems {
+		s.Remove(v)
+	}
+	for _, rs := range g.rendersystems {
+		rs.Remove(v)
 	}
 }
 
