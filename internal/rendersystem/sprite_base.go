@@ -18,7 +18,7 @@ type Render struct {
 func NewRender(logLevel zapcore.Level) *Render {
 	return &Render{
 		entities: map[comp.ID]DrawableEntity{},
-		logger:   logger.NewNamed("sprite", logLevel),
+		logger:   logger.NewNamed("sprite", logLevel, logger.Red),
 	}
 }
 

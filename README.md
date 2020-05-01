@@ -14,6 +14,7 @@
 #### System
 
 Done
+* [ ] Refactor command handling
 * [x] Store assests as go code
 * [x] Generate wasm-version
 

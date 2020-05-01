@@ -19,7 +19,7 @@ type Death struct {
 func NewSystem(logLevel zapcore.Level, lifeCycler EntityLifeCycler) *Death {
 	return &Death{
 		entities:   map[comp.ID]DeathC{},
-		logger:     logger.NewNamed("death", logLevel),
+		logger:     logger.NewNamed("death", logLevel, logger.BrightBlack),
 		lifeCycler: lifeCycler,
 	}
 }

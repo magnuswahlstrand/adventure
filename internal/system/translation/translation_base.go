@@ -19,7 +19,7 @@ type Translation struct {
 func NewTranslation(logLevel zapcore.Level, lifeCycler EntityLifeCycler) *Translation {
 	return &Translation{
 		entities:   map[comp.ID]TranslatableEntity{},
-		logger:   logger.NewNamed("sprite", logLevel),
+		logger:   logger.NewNamed("transl", logLevel, logger.Yellow),
 		lifeCycler: lifeCycler,
 	}
 }
