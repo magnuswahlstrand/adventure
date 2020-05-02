@@ -5,8 +5,11 @@ import (
 	"github.com/hajimehoshi/ebiten/inpututil"
 	"github.com/kyeett/single-player-game/internal/command"
 	"github.com/kyeett/single-player-game/internal/comp"
+	"github.com/kyeett/single-player-game/internal/event"
+	"github.com/kyeett/single-player-game/internal/logger"
 	"github.com/kyeett/single-player-game/internal/rendersystem"
 	"github.com/kyeett/single-player-game/internal/system"
+	"github.com/kyeett/single-player-game/internal/system/attack"
 	"github.com/kyeett/single-player-game/internal/system/base"
 	"github.com/kyeett/single-player-game/internal/system/death"
 	"github.com/kyeett/single-player-game/internal/system/translation"
@@ -21,6 +24,7 @@ type Game struct {
 	systems       []system.System
 	rendersystems []rendersystem.System
 	lookup        map[comp.ID]interface{}
+	logger        *zap.SugaredLogger
 }
 
 func (g *Game) FindEntityByID(id comp.ID) interface{} {
@@ -37,12 +41,13 @@ type GameState struct {
 	updatedThisIteration bool
 	step                 int64
 	turn                 int64
+	events               []event.Event
 }
 
 func NewGame() *Game {
 
 	p := unit.NewPlayer(0, 0)
-	e := unit.NewEnemySnake(2, 2)
+	e := unit.NewEnemySnake(2, 1)
 	e2 := unit.NewEnemyRat(5, 0)
 	c := unit.NewChest(1, 1)
 
@@ -52,12 +57,14 @@ func NewGame() *Game {
 			rendersystem.NewRender(zap.InfoLevel),
 		},
 		lookup: map[comp.ID]interface{}{},
+		logger: logger.NewNamed("game", zap.InfoLevel, logger.BrightWhite),
 	}
 
 	trans := translation.NewTranslation(zap.InfoLevel, g, p)
 	systems := []system.System{
 		trans,
 		base.NewSystem(zap.InfoLevel, g),
+		attack.NewSystem(zap.InfoLevel, g),
 		death.NewSystem(zap.InfoLevel, g),
 	}
 	g.translation = trans
@@ -113,10 +120,15 @@ func (g *Game) Update(_ *ebiten.Image) error {
 		g.undo()
 	}
 
-	events := g.translation.GetEvents()
+	event := g.translation.GetEvent()
+	if event != nil {
+		g.logger.Debug("event:" + event.Type())
+		g.GameState.events = append(g.GameState.events, event)
+	}
+
 
 	for _, s := range g.systems {
-		commands := s.Update(events)
+		commands := s.Update(event)
 		g.execute(commands)
 	}
 
@@ -174,6 +186,7 @@ func (g *Game) undo() {
 
 	if updated {
 		g.GameState.step--
+		g.events = g.events[:len(g.events)-1]
 	}
 }
 
@@ -190,6 +203,7 @@ func (g *Game) incrementRound() {
 		g.GameState.step = 0
 		g.GameState.turn++
 		g.GameState.stack = nil
+		g.GameState.events = nil
 	}
 }
 

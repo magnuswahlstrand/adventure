@@ -7,10 +7,6 @@ import (
 
 type CommandType string
 
-const (
-	TypeMoveBy = "Move"
-)
-
 type Command struct {
 	Execute func() error
 	Undo    func()
@@ -23,20 +19,6 @@ type Movable interface {
 	GetPosition() *comp.Position
 }
 
-type MoveTo struct {
-	ActorID comp.ID
-	Target  *comp.Position
-}
-
-func MoveBy2(unit Movable, dx, dy int) MoveTo {
-	pos := unit.GetPosition()
-	x0, y0 := pos.X, pos.Y
-
-	return MoveTo{
-		ActorID: unit.GetEntity().ID,
-		Target:  comp.P(x0+dx, y0+dy),
-	}
-}
 
 func Move(unit Movable, target *comp.Position) *Command {
 	pos := unit.GetPosition()
@@ -52,4 +34,15 @@ func Move(unit Movable, target *comp.Position) *Command {
 		pos.Y = y0
 	}
 	return &Command{execute, undo, fmt.Sprintf("MoveTo(%d,%d)", target.X, target.Y), -1}
+}
+
+func ChangeHitpoints(hp *comp.Hitpoints, change int64) *Command {
+	execute := func() error {
+		hp.Amount = hp.Amount + change
+		return nil
+	}
+	undo := func() {
+		hp.Amount = hp.Amount - change
+	}
+	return &Command{execute, undo, "ChangeHitpoints", -1}
 }

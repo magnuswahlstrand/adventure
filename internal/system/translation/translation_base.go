@@ -70,24 +70,30 @@ func (s *Translation) Remove(id comp.ID) {
 	delete(s.entities, id)
 }
 
-func (s *Translation) GetEvents() event.Event {
+func (s *Translation) MoveBy(dx, dy int) *comp.Position {
+	pos := s.player.Position
+	x0, y0 := pos.X, pos.Y
+	return comp.P(x0+dx, y0+dy)
+}
+
+func (s *Translation) GetEvent() event.Event {
 	// Interpret events
-	var mv command.MoveTo
+	var mv *comp.Position
 	switch {
 	case inpututil.IsKeyJustPressed(ebiten.KeyRight):
-		mv = command.MoveBy2(s.player, 1, 0)
+		mv = s.MoveBy(1, 0)
 	case inpututil.IsKeyJustPressed(ebiten.KeyLeft):
-		mv = command.MoveBy2(s.player, -1, 0)
+		mv = s.MoveBy(-1, 0)
 	case inpututil.IsKeyJustPressed(ebiten.KeyUp):
-		mv = command.MoveBy2(s.player, 0, -1)
+		mv = s.MoveBy(0, -1)
 	case inpututil.IsKeyJustPressed(ebiten.KeyDown):
-		mv = command.MoveBy2(s.player, 0, 1)
+		mv = s.MoveBy(0, 1)
 	default:
 		return nil
 	}
 
 	//actor, err := s.findByID(v.ActorID)
-	target := s.findAtPosition(mv.Target)
+	target := s.findAtPosition(mv)
 	switch target.Type {
 	case comp.TypeEnemy,
 		comp.TypeChest,
@@ -96,7 +102,7 @@ func (s *Translation) GetEvents() event.Event {
 	case comp.TypeNil:
 		return event.Move{
 			Actor:    s.player.ID,
-			Position: *mv.Target,
+			Position: *mv,
 		}
 	default:
 		return nil

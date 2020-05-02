@@ -2,41 +2,45 @@
 
 ## Roadmap
 
-### v0.3
+### v0.4
 
-#### Gameplay
-* [ ] Hit monsters
-* [ ] Kill monsters
+##### Gameplay
 * [ ] Inventory with key
 * [ ] Open doors with key
 * [ ] Some sort of goal, and end of game
 
-### Future (v0.x)
+---
 
-#### UI
+##### UI
 * [ ] Visualize HP
 
-#### System
+##### System
 * [ ] Clean up entity handling
 * [ ] Save game
 * [ ] Replay
+* [ ] Load map from Tiled
 
-#### Multiplayer
+##### Multiplayer
 * [ ] Broadcast commands
 
-### Bugs
-* [ ] Steps increased on border
+## Completed
 
----
+### v0.3
 
-### Completed
+##### Gameplay
+* [x] Hit monsters
+* [x] Kill monsters
+
+##### Bugs
+* [x] Steps increased on border
+
 
 ### v0.2
 
-#### UI
+##### UI
 * [x] Visualize stack
 
-#### System
+##### System
 
 * [x] Refactor command handling
   * [x] Undo multiple steps

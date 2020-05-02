@@ -26,8 +26,8 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("turn: %d", g.GameState.turn), 2*60, 15)
 
 	// Draw stack
-	for i, s := range g.stack {
-		ebitenutil.DebugPrintAt(screen, s.Name, 2*60, (30+15*i))
+	for i, s := range g.events {
+		ebitenutil.DebugPrintAt(screen, string(s.Type()), 2*60, (30+15*i))
 	}
 	g.drawGrid(screen)
 

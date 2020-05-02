@@ -1,4 +1,4 @@
-package base
+package attack
 
 import (
 	"github.com/kyeett/single-player-game/internal/command"
@@ -11,64 +11,62 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
-var _ system.System = &Base{}
+var _ system.System = &Attack{}
 
-type Base struct {
+type Attack struct {
 	entities   map[comp.ID]BaseEntity
 	logger     *zap.SugaredLogger
 	lifeCycler entitymanager.EntityLifeCycler
 }
 
-func NewSystem(logLevel zapcore.Level, lifeCycler entitymanager.EntityLifeCycler) *Base {
-	return &Base{
+func NewSystem(logLevel zapcore.Level, lifeCycler entitymanager.EntityLifeCycler) *Attack {
+	return &Attack{
 		entities:   map[comp.ID]BaseEntity{},
-		logger:   logger.NewNamed("base", logLevel, logger.Green),
+		logger:   logger.NewNamed("attack", logLevel, logger.Red),
 		lifeCycler: lifeCycler,
 	}
 }
 
-type Basable interface {
+type Attackable interface {
 	GetEntity() comp.Entity
-	GetPosition() *comp.Position
+	GetHitpoints() *comp.Hitpoints
 }
 
 type BaseEntity struct {
 	comp.Entity
-	*comp.Position
-	source interface{}
+	*comp.Hitpoints
 }
 
-func (s *BaseEntity) GetSource() interface{} {
-	return s.source
-}
-
-func (s *Base) Update(evt event.Event) []*command.Command {
+func (s *Attack) Update(evt event.Event) []*command.Command {
 	switch v := evt.(type)  {
-	case event.Move:
-		return s.move(v.Actor, v.Position)
-	case event.TakeItem:
-		return s.takeItem(v.Actor, v.Target)
-	case event.OpenChest:
-		return s.openChest(v.Actor, v.Target)
+	case event.Attack:
+		return s.attack(v.Actor, v.Target)
 	}
 
 	return nil
 }
 
-func (s *Base) Add(v interface{}) {
-	i, ok := v.(Basable)
+func (s *Attack) Add(v interface{}) {
+	i, ok := v.(Attackable)
 	if !ok {
 		return
 	}
 	e := BaseEntity{
 		Entity:   i.GetEntity(),
-		Position: i.GetPosition(),
-		source: v,
+		Hitpoints: i.GetHitpoints(),
 	}
 	s.logger.Info("entity added")
 	s.entities[e.ID] = e
 }
 
-func (s *Base) Remove(id comp.ID) {
+func (s *Attack) Remove(id comp.ID) {
 	delete(s.entities, id)
+}
+
+func (s *Attack) attack(_, tID comp.ID) []*command.Command {
+	var commands []*command.Command
+	target := s.entities[tID]
+	damage := -int64(1)
+	commands = append(commands, command.ChangeHitpoints(target.Hitpoints, damage))
+	return commands
 }

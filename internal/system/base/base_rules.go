@@ -44,13 +44,3 @@ func (s *Base) openChest(_, chestID comp.ID) []*command.Command {
 	commands = append(commands, entitymanager.AddEntity(s.lifeCycler, item.ID, item))
 	return commands
 }
-
-func (s *Base) attack(aID, _ comp.ID) []*command.Command {
-	var commands []*command.Command
-
-	// "Kill" player
-	player := s.entities[aID]
-
-	commands = append(commands, command.Move(player, comp.P(0, 0)))
-	return commands
-}
