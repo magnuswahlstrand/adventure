@@ -3,47 +3,14 @@ package translation
 import (
 	"errors"
 	"fmt"
-	"github.com/kyeett/single-player-game/internal/command"
 	"github.com/kyeett/single-player-game/internal/comp"
-	"go.uber.org/zap"
-	"log"
+	"github.com/kyeett/single-player-game/internal/event"
 )
 
 var (
 	TheWall = TranslatableEntity{Entity: comp.Entity{Type: comp.TypeWall}}
 	TheNil  = TranslatableEntity{Entity: comp.Entity{Type: comp.TypeNil}}
 )
-
-func (s *Translation) Translate(c interface{}) []*command.Command {
-	if c == nil {
-		return nil
-	}
-
-	switch v := c.(type) {
-	case command.MoveTo:
-		actor, err := s.findByID(v.ActorID)
-		if err != nil {
-			s.logger.Debug("didn't find actor", zap.String("ID", string(v.ActorID)))
-			return nil
-		}
-
-		target := s.findAtPosition(v.Target)
-		switch target.Type {
-		case comp.TypeEnemy,
-			comp.TypeChest,
-			comp.TypeItem:
-			return s.interact(actor, target)
-		case comp.TypeNil:
-			return []*command.Command{command.MoveToCommand(actor, v.Target)}
-		default:
-			fmt.Printf("%T\n", target)
-			return []*command.Command{}
-		}
-	default:
-		log.Fatal("translate:", v)
-	}
-	return nil
-}
 
 func (s *Translation) findAtPosition(p *comp.Position) TranslatableEntity {
 	if p.X >= 6 || p.X < 0 {
@@ -72,11 +39,25 @@ func (s *Translation) findByID(ID comp.ID) (TranslatableEntity, error) {
 	return e, nil
 }
 
-func (s *Translation) interact(actor TranslatableEntity, target TranslatableEntity) []*command.Command {
-	switch actor.Type {
-	case comp.TypePlayer:
-		return s.playerInteract(actor, target)
-	}
 
+func (s *Translation) playerInteract(target TranslatableEntity) event.Event {
+	s.logger.Debug(fmt.Sprintf("player interact with %v", target))
+	switch target.Type {
+	case comp.TypeEnemy:
+		return event.Attack{
+			Actor:  s.player.ID,
+			Target: target.ID,
+		}
+	case comp.TypeChest:
+		return event.OpenChest{
+			Actor:  s.player.ID,
+			Target: target.ID,
+		}
+	case comp.TypeItem:
+		return event.TakeItem{
+			Actor:  s.player.ID,
+			Target: target.ID,
+		}
+	}
 	return nil
 }

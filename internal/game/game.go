@@ -7,6 +7,7 @@ import (
 	"github.com/kyeett/single-player-game/internal/comp"
 	"github.com/kyeett/single-player-game/internal/rendersystem"
 	"github.com/kyeett/single-player-game/internal/system"
+	"github.com/kyeett/single-player-game/internal/system/base"
 	"github.com/kyeett/single-player-game/internal/system/death"
 	"github.com/kyeett/single-player-game/internal/system/translation"
 	"github.com/kyeett/single-player-game/internal/unit"
@@ -56,6 +57,7 @@ func NewGame() *Game {
 	trans := translation.NewTranslation(zap.InfoLevel, g, p)
 	systems := []system.System{
 		trans,
+		base.NewSystem(zap.InfoLevel, g),
 		death.NewSystem(zap.InfoLevel, g),
 	}
 	g.translation = trans
@@ -111,8 +113,10 @@ func (g *Game) Update(_ *ebiten.Image) error {
 		g.undo()
 	}
 
+	events := g.translation.GetEvents()
+
 	for _, s := range g.systems {
-		commands := s.Update()
+		commands := s.Update(events)
 		g.execute(commands)
 	}
 

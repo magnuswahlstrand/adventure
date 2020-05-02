@@ -23,23 +23,6 @@ type Movable interface {
 	GetPosition() *comp.Position
 }
 
-func MoveBy(unit Movable, dx, dy int) *Command {
-	pos := unit.GetPosition()
-	x0, y0 := pos.X, pos.Y
-
-	execute := func() error {
-		pos.X = x0 + dx
-		pos.Y = y0 + dy
-		return nil
-	}
-	undo := func() {
-		fmt.Printf("Move back to ")
-		pos.X = x0
-		pos.Y = y0
-	}
-	return &Command{execute, undo, fmt.Sprintf("MoveBy(%d,%d)", dx, dy), -1}
-}
-
 type MoveTo struct {
 	ActorID comp.ID
 	Target  *comp.Position
@@ -55,7 +38,7 @@ func MoveBy2(unit Movable, dx, dy int) MoveTo {
 	}
 }
 
-func MoveToCommand(unit Movable, target *comp.Position) *Command {
+func Move(unit Movable, target *comp.Position) *Command {
 	pos := unit.GetPosition()
 	x0, y0 := pos.X, pos.Y
 
@@ -65,7 +48,6 @@ func MoveToCommand(unit Movable, target *comp.Position) *Command {
 		return nil
 	}
 	undo := func() {
-		fmt.Printf("Move back to ")
 		pos.X = x0
 		pos.Y = y0
 	}

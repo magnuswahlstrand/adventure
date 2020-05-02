@@ -6,6 +6,7 @@ import (
 	"github.com/kyeett/single-player-game/internal/command"
 	"github.com/kyeett/single-player-game/internal/comp"
 	"github.com/kyeett/single-player-game/internal/entitymanager"
+	"github.com/kyeett/single-player-game/internal/event"
 	"github.com/kyeett/single-player-game/internal/logger"
 	"github.com/kyeett/single-player-game/internal/system"
 	"github.com/kyeett/single-player-game/internal/unit"
@@ -26,9 +27,9 @@ type Translation struct {
 func NewTranslation(logLevel zapcore.Level, lifeCycler entitymanager.EntityLifeCycler, player *unit.Player) *Translation {
 	return &Translation{
 		entities:   map[comp.ID]TranslatableEntity{},
-		logger:   logger.NewNamed("transl", logLevel, logger.Yellow),
+		logger:     logger.NewNamed("transl", logLevel, logger.Yellow),
 		lifeCycler: lifeCycler,
-		player: player,
+		player:     player,
 	}
 }
 
@@ -47,23 +48,8 @@ func (s *TranslatableEntity) GetSource() interface{} {
 	return s.source
 }
 
-func (s *Translation) handleInput() interface{} {
-	switch {
-	case inpututil.IsKeyJustPressed(ebiten.KeyRight):
-		return command.MoveBy2(s.player, 1, 0)
-	case inpututil.IsKeyJustPressed(ebiten.KeyLeft):
-		return command.MoveBy2(s.player, -1, 0)
-	case inpututil.IsKeyJustPressed(ebiten.KeyUp):
-		return command.MoveBy2(s.player, 0, -1)
-	case inpututil.IsKeyJustPressed(ebiten.KeyDown):
-		return command.MoveBy2(s.player, 0, 1)
-	}
+func (s *Translation) Update(_ event.Event) []*command.Command {
 	return nil
-}
-
-func (s *Translation) Update() []*command.Command {
-	commands := s.handleInput()
-	return s.Translate(commands)
 }
 
 func (s *Translation) Add(v interface{}) {
@@ -74,7 +60,7 @@ func (s *Translation) Add(v interface{}) {
 	e := TranslatableEntity{
 		Entity:   i.GetEntity(),
 		Position: i.GetPosition(),
-		source: v,
+		source:   v,
 	}
 	s.logger.Info("entity added")
 	s.entities[e.ID] = e
@@ -82,4 +68,37 @@ func (s *Translation) Add(v interface{}) {
 
 func (s *Translation) Remove(id comp.ID) {
 	delete(s.entities, id)
+}
+
+func (s *Translation) GetEvents() event.Event {
+	// Interpret events
+	var mv command.MoveTo
+	switch {
+	case inpututil.IsKeyJustPressed(ebiten.KeyRight):
+		mv = command.MoveBy2(s.player, 1, 0)
+	case inpututil.IsKeyJustPressed(ebiten.KeyLeft):
+		mv = command.MoveBy2(s.player, -1, 0)
+	case inpututil.IsKeyJustPressed(ebiten.KeyUp):
+		mv = command.MoveBy2(s.player, 0, -1)
+	case inpututil.IsKeyJustPressed(ebiten.KeyDown):
+		mv = command.MoveBy2(s.player, 0, 1)
+	default:
+		return nil
+	}
+
+	//actor, err := s.findByID(v.ActorID)
+	target := s.findAtPosition(mv.Target)
+	switch target.Type {
+	case comp.TypeEnemy,
+		comp.TypeChest,
+		comp.TypeItem:
+		return s.playerInteract(target)
+	case comp.TypeNil:
+		return event.Move{
+			Actor:    s.player.ID,
+			Position: *mv.Target,
+		}
+	default:
+		return nil
+	}
 }

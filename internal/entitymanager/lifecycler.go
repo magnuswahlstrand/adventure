@@ -13,7 +13,7 @@ type EntityLifeCycler interface {
 }
 
 
-func RemoveCommand(lifeCycler EntityLifeCycler, id comp.ID) *command.Command {
+func RemoveEntity(lifeCycler EntityLifeCycler, id comp.ID) *command.Command {
 	e := lifeCycler.FindEntityByID(id)
 	execute := func() error {
 		lifeCycler.Remove(id)
@@ -25,8 +25,7 @@ func RemoveCommand(lifeCycler EntityLifeCycler, id comp.ID) *command.Command {
 	return &command.Command{execute, undo, fmt.Sprintf("Remove entity"),-1}
 }
 
-func AddCommand(lifeCycler EntityLifeCycler, id comp.ID, target interface{}) *command.Command {
-	//e := lifeCycler.FindEntityByID(id)
+func AddEntity(lifeCycler EntityLifeCycler, id comp.ID, target interface{}) *command.Command {
 	execute := func() error {
 		lifeCycler.Add(target)
 		return nil
