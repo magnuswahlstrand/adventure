@@ -1,12 +1,12 @@
 package attack
 
 import (
-	"github.com/kyeett/single-player-game/internal/command"
-	"github.com/kyeett/single-player-game/internal/comp"
-	"github.com/kyeett/single-player-game/internal/entitymanager"
-	"github.com/kyeett/single-player-game/internal/event"
-	"github.com/kyeett/single-player-game/internal/logger"
-	"github.com/kyeett/single-player-game/internal/system"
+	"github.com/kyeett/adventure/internal/command"
+	"github.com/kyeett/adventure/internal/comp"
+	"github.com/kyeett/adventure/internal/entitymanager"
+	"github.com/kyeett/adventure/internal/event"
+	"github.com/kyeett/adventure/internal/logger"
+	"github.com/kyeett/adventure/internal/system"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )

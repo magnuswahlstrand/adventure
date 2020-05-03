@@ -1,7 +1,7 @@
 package unit
 
 import (
-	"github.com/kyeett/single-player-game/internal/comp"
+	"github.com/kyeett/adventure/internal/comp"
 )
 
 type Player struct {
@@ -10,6 +10,7 @@ type Player struct {
 	*comp.Sprite
 	*comp.Hitpoints
 	*comp.Inventory
+	Remote bool
 }
 
 type Enemy struct {
@@ -89,6 +90,7 @@ func NewPlayer(x, y int) *Player {
 		sprite,
 		comp.HP(5),
 		&comp.Inventory{},
+		false,
 	}
 }
 

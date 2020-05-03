@@ -1,8 +1,8 @@
 package rendersystem
 
 import (
-	"github.com/kyeett/single-player-game/internal/comp"
-	"github.com/kyeett/single-player-game/internal/logger"
+	"github.com/kyeett/adventure/internal/comp"
+	"github.com/kyeett/adventure/internal/logger"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )

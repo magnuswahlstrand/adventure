@@ -2,11 +2,11 @@ package game
 
 import (
 	"encoding/json"
-	"github.com/kyeett/single-player-game/internal/comp"
-	"github.com/kyeett/single-player-game/internal/event"
-	"github.com/kyeett/single-player-game/internal/inputhandler"
-	"github.com/kyeett/single-player-game/internal/inputhandler/testinput"
-	"github.com/kyeett/single-player-game/internal/unit"
+	"github.com/kyeett/adventure/internal/comp"
+	"github.com/kyeett/adventure/internal/event"
+	"github.com/kyeett/adventure/internal/inputhandler"
+	"github.com/kyeett/adventure/internal/inputhandler/testinput"
+	"github.com/kyeett/adventure/internal/unit"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/zap"

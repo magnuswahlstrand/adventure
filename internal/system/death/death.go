@@ -1,9 +1,9 @@
 package death
 
 import (
-	"github.com/kyeett/single-player-game/internal/command"
-	"github.com/kyeett/single-player-game/internal/entitymanager"
-	"github.com/kyeett/single-player-game/internal/event"
+	"github.com/kyeett/adventure/internal/command"
+	"github.com/kyeett/adventure/internal/entitymanager"
+	"github.com/kyeett/adventure/internal/event"
 )
 
 func (s *Death) Update(_ event.Event) []*command.Command{

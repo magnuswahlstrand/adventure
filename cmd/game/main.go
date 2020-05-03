@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/hajimehoshi/ebiten"
-	"github.com/kyeett/single-player-game/internal/game"
+	"github.com/kyeett/adventure/internal/game"
 	"log"
 )
 

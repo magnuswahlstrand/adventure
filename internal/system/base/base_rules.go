@@ -1,10 +1,10 @@
 package base
 
 import (
-	"github.com/kyeett/single-player-game/internal/command"
-	"github.com/kyeett/single-player-game/internal/comp"
-	"github.com/kyeett/single-player-game/internal/entitymanager"
-	"github.com/kyeett/single-player-game/internal/unit"
+	"github.com/kyeett/adventure/internal/command"
+	"github.com/kyeett/adventure/internal/comp"
+	"github.com/kyeett/adventure/internal/entitymanager"
+	"github.com/kyeett/adventure/internal/unit"
 )
 
 func (s *Base) takeItem(aID, itemID comp.ID) []*command.Command {

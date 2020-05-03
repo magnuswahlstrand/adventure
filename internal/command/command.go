@@ -2,7 +2,7 @@ package command
 
 import (
 	"fmt"
-	"github.com/kyeett/single-player-game/internal/comp"
+	"github.com/kyeett/adventure/internal/comp"
 )
 
 type CommandType string

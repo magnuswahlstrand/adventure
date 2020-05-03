@@ -2,11 +2,11 @@ package playerui
 
 import (
 	"github.com/hajimehoshi/ebiten"
-	"github.com/kyeett/single-player-game/internal/comp"
-	"github.com/kyeett/single-player-game/internal/logger"
-	"github.com/kyeett/single-player-game/internal/rendersystem"
-	"github.com/kyeett/single-player-game/internal/rendersystem/drawutil"
-	"github.com/kyeett/single-player-game/internal/unit"
+	"github.com/kyeett/adventure/internal/comp"
+	"github.com/kyeett/adventure/internal/logger"
+	"github.com/kyeett/adventure/internal/rendersystem"
+	"github.com/kyeett/adventure/internal/rendersystem/drawutil"
+	"github.com/kyeett/adventure/internal/unit"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )

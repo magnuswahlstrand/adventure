@@ -1,7 +1,7 @@
 package inputhandler
 
 import (
-	"github.com/kyeett/single-player-game/internal/event"
+	"github.com/kyeett/adventure/internal/event"
 )
 
 type InputHandler interface{

@@ -3,6 +3,7 @@ package game
 import (
 	"github.com/hajimehoshi/ebiten"
 	"github.com/hajimehoshi/ebiten/inpututil"
+	"github.com/kyeett/adventure/internal/event"
 )
 
 func (g *Game) Update(_ *ebiten.Image) error {
@@ -39,6 +40,14 @@ func (g *Game) updateGameOngoing() {
 		g.restart2Players()
 		return
 	}
+	if inpututil.IsKeyJustPressed(ebiten.Key8) {
+		*g = *(NewWebsocketGame(true))
+		return
+	}
+	if inpututil.IsKeyJustPressed(ebiten.Key9) {
+		*g = *(NewWebsocketGame(false))
+		return
+	}
 
 	g.ActionStack.updatedThisIteration = false
 
@@ -47,7 +56,14 @@ func (g *Game) updateGameOngoing() {
 		g.undo()
 	}
 
-	evt := g.InputHandlers[g.activePlayer.ID].GetEvent()
+	var evt event.Event
+	switch g.activePlayer.Remote {
+	case true:
+		evt = g.network.GetEvents()
+	default:
+		evt = g.InputHandlers[g.activePlayer.ID].GetEvent()
+	}
+
 	if evt != nil {
 		g.logger.Debug("event:" + evt.Type())
 		g.ActionStack.events = append(g.ActionStack.events, evt)

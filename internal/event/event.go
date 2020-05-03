@@ -1,6 +1,6 @@
 package event
 
-import "github.com/kyeett/single-player-game/internal/comp"
+import "github.com/kyeett/adventure/internal/comp"
 
 type Type string
 

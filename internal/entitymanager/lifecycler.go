@@ -2,8 +2,8 @@ package entitymanager
 
 import (
 	"fmt"
-	"github.com/kyeett/single-player-game/internal/command"
-	"github.com/kyeett/single-player-game/internal/comp"
+	"github.com/kyeett/adventure/internal/command"
+	"github.com/kyeett/adventure/internal/comp"
 )
 
 type EntityLifeCycler interface {

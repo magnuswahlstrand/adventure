@@ -2,7 +2,7 @@ package rendersystem
 
 import (
 	"github.com/hajimehoshi/ebiten"
-	"github.com/kyeett/single-player-game/internal/rendersystem/drawutil"
+	"github.com/kyeett/adventure/internal/rendersystem/drawutil"
 )
 
 func (s *Render) Draw(screen *ebiten.Image) {

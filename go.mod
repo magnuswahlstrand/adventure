@@ -1,9 +1,10 @@
-module github.com/kyeett/single-player-game
+module github.com/kyeett/adventure
 
 go 1.14
 
 require (
 	github.com/google/uuid v1.1.1
+	github.com/gorilla/websocket v1.4.2
 	github.com/hajimehoshi/ebiten v1.11.0
 	github.com/peterhellberg/gfx v0.0.0-20200413155834-f94ca2597d91
 	github.com/pkg/errors v0.9.1 // indirect

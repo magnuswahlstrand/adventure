@@ -5,7 +5,9 @@
 ### v0.6 - Multiplayer
 
 ##### Multiplayer
-* [ ] Simple multipalyer
+* [ ] Simple multiplayer
+    * [ ] Broadcast events
+    * [ ] Receive events
 
 ---
 

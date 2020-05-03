@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"github.com/hajimehoshi/ebiten"
 	"github.com/hajimehoshi/ebiten/ebitenutil"
-	"github.com/kyeett/single-player-game/internal/comp"
-	"github.com/kyeett/single-player-game/internal/rendersystem/drawutil"
+	"github.com/kyeett/adventure/internal/comp"
+	"github.com/kyeett/adventure/internal/rendersystem/drawutil"
 	"golang.org/x/image/colornames"
 )
 

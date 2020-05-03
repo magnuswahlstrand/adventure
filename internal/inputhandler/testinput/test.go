@@ -1,9 +1,9 @@
 package testinput
 
 import (
-	"github.com/kyeett/single-player-game/internal/event"
-	"github.com/kyeett/single-player-game/internal/inputhandler"
-	"github.com/kyeett/single-player-game/internal/logger"
+	"github.com/kyeett/adventure/internal/event"
+	"github.com/kyeett/adventure/internal/inputhandler"
+	"github.com/kyeett/adventure/internal/logger"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )

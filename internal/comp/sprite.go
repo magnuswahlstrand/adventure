@@ -2,7 +2,7 @@ package comp
 
 import (
 	"github.com/hajimehoshi/ebiten"
-	"github.com/kyeett/single-player-game/assets"
+	"github.com/kyeett/adventure/assets"
 	"github.com/peterhellberg/gfx"
 	"log"
 )
