@@ -2,14 +2,18 @@
 
 ## Roadmap
 
-### v0.4
+### v0.5
+
+##### System
+* [ ] Play actions from disk
 
 ##### Gameplay
-* [ ] Inventory with key
-* [ ] Open doors with key
-* [ ] Some sort of goal, and end of game
+
+##### UI
 
 ---
+
+### Future (v0.x)
 
 ##### UI
 * [ ] Visualize HP
@@ -19,11 +23,25 @@
 * [ ] Save game
 * [ ] Replay
 * [ ] Load map from Tiled
+* [ ] Play sounds
+* [ ] Proper walls
+
 
 ##### Multiplayer
 * [ ] Broadcast commands
 
 ## Completed
+
+
+### v0.4
+
+##### Gameplay
+* [x] Inventory with key
+* [x] Open doors with key
+* [x] Some sort of goal, and end of game
+
+##### UI
+* [x] Visualize inventory
 
 ### v0.3
 

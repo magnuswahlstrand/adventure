@@ -21,6 +21,10 @@ func (s *Translation) findAtPosition(p *comp.Position) TranslatableEntity {
 		return TheWall
 	}
 
+	if p.Y == 2 && p.X != 2 {
+		return TheWall
+	}
+
 	for _, e := range s.entities {
 		if p.Equals(e.GetPosition()) {
 			return e
@@ -38,7 +42,6 @@ func (s *Translation) findByID(ID comp.ID) (TranslatableEntity, error) {
 
 	return e, nil
 }
-
 
 func (s *Translation) playerInteract(target TranslatableEntity) event.Event {
 	s.logger.Debug(fmt.Sprintf("player interact with %v", target))
@@ -58,6 +61,13 @@ func (s *Translation) playerInteract(target TranslatableEntity) event.Event {
 			Actor:  s.player.ID,
 			Target: target.ID,
 		}
+	case comp.TypeDoor:
+		return event.OpenDoor{
+			Actor:  s.player.ID,
+			Target: target.ID,
+		}
+	case comp.TypeGoal:
+		return event.ReachGoal{}
 	}
 	return nil
 }

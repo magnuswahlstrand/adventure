@@ -97,7 +97,9 @@ func (s *Translation) GetEvent() event.Event {
 	switch target.Type {
 	case comp.TypeEnemy,
 		comp.TypeChest,
-		comp.TypeItem:
+		comp.TypeItem,
+		comp.TypeDoor,
+		comp.TypeGoal:
 		return s.playerInteract(target)
 	case comp.TypeNil:
 		return event.Move{

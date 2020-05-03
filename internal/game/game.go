@@ -2,16 +2,18 @@ package game
 
 import (
 	"github.com/hajimehoshi/ebiten"
-	"github.com/hajimehoshi/ebiten/inpututil"
 	"github.com/kyeett/single-player-game/internal/command"
 	"github.com/kyeett/single-player-game/internal/comp"
 	"github.com/kyeett/single-player-game/internal/event"
 	"github.com/kyeett/single-player-game/internal/logger"
 	"github.com/kyeett/single-player-game/internal/rendersystem"
+	"github.com/kyeett/single-player-game/internal/rendersystem/playerui"
 	"github.com/kyeett/single-player-game/internal/system"
 	"github.com/kyeett/single-player-game/internal/system/attack"
 	"github.com/kyeett/single-player-game/internal/system/base"
 	"github.com/kyeett/single-player-game/internal/system/death"
+	eventsys "github.com/kyeett/single-player-game/internal/system/event"
+	"github.com/kyeett/single-player-game/internal/system/movement"
 	"github.com/kyeett/single-player-game/internal/system/translation"
 	"github.com/kyeett/single-player-game/internal/unit"
 	"go.uber.org/zap"
@@ -25,6 +27,7 @@ type Game struct {
 	rendersystems []rendersystem.System
 	lookup        map[comp.ID]interface{}
 	logger        *zap.SugaredLogger
+	state         *string
 }
 
 func (g *Game) FindEntityByID(id comp.ID) interface{} {
@@ -46,26 +49,37 @@ type GameState struct {
 
 func NewGame() *Game {
 
-	p := unit.NewPlayer(0, 0)
-	e := unit.NewEnemySnake(2, 1)
-	e2 := unit.NewEnemyRat(5, 0)
-	c := unit.NewChest(1, 1)
+	p := unit.NewPlayer(2, 3)
 
+
+	e := unit.NewEnemySnake(4, 5)
+	e2 := unit.NewEnemyRat(5, 4)
+
+	c := unit.NewChest(5, 5)
+
+	d := unit.NewDoor(2, 2)
+	gl := unit.NewGoal(2, 0)
+
+	state := "started"
 	g := &Game{
 		GameState: NewGameState(),
 		rendersystems: []rendersystem.System{
 			rendersystem.NewRender(zap.InfoLevel),
+			playerui.NewRender(zap.InfoLevel, p),
 		},
 		lookup: map[comp.ID]interface{}{},
 		logger: logger.NewNamed("game", zap.InfoLevel, logger.BrightWhite),
+		state: &state,
 	}
 
-	trans := translation.NewTranslation(zap.InfoLevel, g, p)
+	trans := translation.NewTranslation(zap.DebugLevel, g, p)
 	systems := []system.System{
 		trans,
-		base.NewSystem(zap.InfoLevel, g),
+		base.NewSystem(zap.InfoLevel, g, p),
+		movement.NewSystem(zap.InfoLevel),
 		attack.NewSystem(zap.InfoLevel, g),
 		death.NewSystem(zap.InfoLevel, g),
+		eventsys.NewSystem(zap.InfoLevel, g.state),
 	}
 	g.translation = trans
 	g.systems = systems
@@ -74,6 +88,8 @@ func NewGame() *Game {
 	g.Add(e)
 	g.Add(e2)
 	g.Add(c)
+	g.Add(d)
+	g.Add(gl)
 
 	return g
 }
@@ -112,30 +128,6 @@ func NewGameState() *GameState {
 	}
 }
 
-func (g *Game) Update(_ *ebiten.Image) error {
-	g.GameState.updatedThisIteration = false
-
-	// Handle input
-	if inpututil.IsKeyJustPressed(ebiten.KeyZ) {
-		g.undo()
-	}
-
-	event := g.translation.GetEvent()
-	if event != nil {
-		g.logger.Debug("event:" + event.Type())
-		g.GameState.events = append(g.GameState.events, event)
-	}
-
-
-	for _, s := range g.systems {
-		commands := s.Update(event)
-		g.execute(commands)
-	}
-
-	g.incrementStep()
-	g.incrementRound()
-	return nil
-}
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
 	return outsideWidth / 2, outsideHeight / 2

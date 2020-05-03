@@ -7,6 +7,7 @@ type Player struct {
 	*comp.Position
 	*comp.Sprite
 	*comp.Hitpoints
+	*comp.Inventory
 }
 
 type Enemy struct {
@@ -24,6 +25,18 @@ type Chest struct {
 }
 
 type Item struct {
+	comp.Entity
+	*comp.Position
+	*comp.Sprite
+}
+
+type Door struct {
+	comp.Entity
+	*comp.Position
+	*comp.Sprite
+}
+
+type Goal struct {
 	comp.Entity
 	*comp.Position
 	*comp.Sprite
@@ -62,6 +75,7 @@ func NewPlayer(x, y int) *Player {
 		comp.P(x, y),
 		comp.SpritePlayer,
 		comp.HP(5),
+		&comp.Inventory{},
 	}
 }
 
@@ -85,5 +99,27 @@ func NewItem(x, y int) *Item {
 		},
 		comp.P(x, y),
 		comp.SpriteKey,
+	}
+}
+
+func NewDoor(x, y int) *Door {
+	return &Door{
+		comp.Entity{
+			comp.NewID(),
+			comp.TypeDoor,
+		},
+		comp.P(x, y),
+		comp.SpriteDoor,
+	}
+}
+
+func NewGoal(x, y int) *Goal {
+	return &Goal{
+		comp.Entity{
+			comp.NewID(),
+			comp.TypeGoal,
+		},
+		comp.P(x, y),
+		comp.SpriteGoal,
 	}
 }

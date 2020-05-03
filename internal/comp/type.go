@@ -19,6 +19,8 @@ const (
 	TypePlayer      = "player"
 	TypeChest       = "chest"
 	TypeItem        = "item"
+	TypeDoor        = "door"
+	TypeGoal        = "goal"
 )
 
 var (

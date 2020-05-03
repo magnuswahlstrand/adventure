@@ -19,7 +19,6 @@ type Movable interface {
 	GetPosition() *comp.Position
 }
 
-
 func Move(unit Movable, target *comp.Position) *Command {
 	pos := unit.GetPosition()
 	x0, y0 := pos.X, pos.Y
@@ -45,4 +44,26 @@ func ChangeHitpoints(hp *comp.Hitpoints, change int64) *Command {
 		hp.Amount = hp.Amount - change
 	}
 	return &Command{execute, undo, "ChangeHitpoints", -1}
+}
+
+func AddToInventory(inventory *comp.Inventory, item comp.Inventorable) *Command {
+	execute := func() error {
+		inventory.Add(item)
+		return nil
+	}
+	undo := func() {
+		inventory.Remove(item)
+	}
+	return &Command{execute, undo, "AddToInventory", -1}
+}
+
+func RemoveFromInventory(inventory *comp.Inventory, item comp.Inventorable) *Command {
+	execute := func() error {
+		inventory.Remove(item)
+		return nil
+	}
+	undo := func() {
+		inventory.Add(item)
+	}
+	return &Command{execute, undo, "RemoveFromInventory", -1}
 }

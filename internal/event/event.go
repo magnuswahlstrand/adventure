@@ -10,6 +10,7 @@ const (
 	TypeOpenChest = "Open Chest"
 	TypeTakeItem  = "Take Item"
 	TypeOpenDoor  = "Open Door"
+	TypeReachGoal  = "Reach Goal"
 	TypeUnknown   = "Unknown"
 )
 
@@ -38,8 +39,11 @@ type OpenDoor struct {
 	Actor, Target comp.ID
 }
 
+type ReachGoal struct {}
+
 func (Move) Type() Type      { return TypeMove }
 func (Attack) Type() Type    { return TypeAttack }
 func (OpenChest) Type() Type { return TypeOpenChest }
 func (TakeItem) Type() Type  { return TypeTakeItem }
 func (OpenDoor) Type() Type  { return TypeOpenDoor }
+func (ReachGoal) Type() Type  { return TypeReachGoal }

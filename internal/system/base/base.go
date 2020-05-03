@@ -7,6 +7,7 @@ import (
 	"github.com/kyeett/single-player-game/internal/event"
 	"github.com/kyeett/single-player-game/internal/logger"
 	"github.com/kyeett/single-player-game/internal/system"
+	"github.com/kyeett/single-player-game/internal/unit"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
@@ -17,13 +18,15 @@ type Base struct {
 	entities   map[comp.ID]BaseEntity
 	logger     *zap.SugaredLogger
 	lifeCycler entitymanager.EntityLifeCycler
+	player *unit.Player
 }
 
-func NewSystem(logLevel zapcore.Level, lifeCycler entitymanager.EntityLifeCycler) *Base {
+func NewSystem(logLevel zapcore.Level, lifeCycler entitymanager.EntityLifeCycler, player *unit.Player) *Base {
 	return &Base{
 		entities:   map[comp.ID]BaseEntity{},
 		logger:   logger.NewNamed("base", logLevel, logger.Green),
 		lifeCycler: lifeCycler,
+		player: player,
 	}
 }
 
@@ -44,12 +47,12 @@ func (s *BaseEntity) GetSource() interface{} {
 
 func (s *Base) Update(evt event.Event) []*command.Command {
 	switch v := evt.(type)  {
-	case event.Move:
-		return s.move(v.Actor, v.Position)
 	case event.TakeItem:
 		return s.takeItem(v.Actor, v.Target)
 	case event.OpenChest:
 		return s.openChest(v.Actor, v.Target)
+	case event.OpenDoor:
+		return s.openDoor(v.Actor, v.Target)
 	}
 
 	return nil

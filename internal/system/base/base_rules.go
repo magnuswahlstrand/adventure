@@ -7,22 +7,23 @@ import (
 	"github.com/kyeett/single-player-game/internal/unit"
 )
 
-func (s *Base) move(aID comp.ID, position comp.Position) []*command.Command {
-	var commands []*command.Command
-	player := s.entities[aID]
-
-	commands = append(commands, command.Move(player, &position))
-	return commands
-}
-
 func (s *Base) takeItem(aID, itemID comp.ID) []*command.Command {
 	var commands []*command.Command
 
 	player := s.entities[aID]
-	item := s.entities[itemID]
+	//item := s.entities[itemID]
+
+	// TODO: Find nicer way of looking up entities
+	item, ok := s.lifeCycler.FindEntityByID(itemID).(*unit.Item)
+	if !ok {
+		return nil
+	}
 
 	// Remove item
 	commands = append(commands, entitymanager.RemoveEntity(s.lifeCycler, item.ID))
+
+	// Take item
+	commands = append(commands, command.AddToInventory(s.player.Inventory, item))
 
 	// Take position of item
 	commands = append(commands, command.Move(player, item.Position))
@@ -42,5 +43,23 @@ func (s *Base) openChest(_, chestID comp.ID) []*command.Command {
 
 	// Add item
 	commands = append(commands, entitymanager.AddEntity(s.lifeCycler, item.ID, item))
+	return commands
+}
+
+func (s *Base) openDoor(aID, chestID comp.ID) []*command.Command {
+	var commands []*command.Command
+
+	door := s.entities[chestID]
+
+	key := s.player.Inventory.GetType(comp.TypeItem)
+	if key == nil {
+		return nil
+	}
+
+	// Use key
+	commands = append(commands, command.RemoveFromInventory(s.player.Inventory, key))
+
+	// Remove door
+	commands = append(commands, entitymanager.RemoveEntity(s.lifeCycler, door.ID))
 	return commands
 }
