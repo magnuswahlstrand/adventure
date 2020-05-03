@@ -5,11 +5,11 @@
 ### v0.5
 
 ##### System
-* [ ] Play actions from disk
+* [x] Run game without UI
 
-##### Gameplay
-
-##### UI
+##### Multiplayer
+* [ ] Control multiple players from test 
+* [x] Multiplayer hotseat
 
 ---
 
@@ -26,8 +26,8 @@
 * [ ] Play sounds
 * [ ] Proper walls
 
-
 ##### Multiplayer
+
 * [ ] Broadcast commands
 
 ## Completed

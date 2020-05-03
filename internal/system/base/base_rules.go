@@ -10,8 +10,7 @@ import (
 func (s *Base) takeItem(aID, itemID comp.ID) []*command.Command {
 	var commands []*command.Command
 
-	player := s.entities[aID]
-	//item := s.entities[itemID]
+	player := s.players[aID]
 
 	// TODO: Find nicer way of looking up entities
 	item, ok := s.lifeCycler.FindEntityByID(itemID).(*unit.Item)
@@ -23,7 +22,7 @@ func (s *Base) takeItem(aID, itemID comp.ID) []*command.Command {
 	commands = append(commands, entitymanager.RemoveEntity(s.lifeCycler, item.ID))
 
 	// Take item
-	commands = append(commands, command.AddToInventory(s.player.Inventory, item))
+	commands = append(commands, command.AddToInventory(player.Inventory, item))
 
 	// Take position of item
 	commands = append(commands, command.Move(player, item.Position))
@@ -50,14 +49,15 @@ func (s *Base) openDoor(aID, chestID comp.ID) []*command.Command {
 	var commands []*command.Command
 
 	door := s.entities[chestID]
+	player := s.players[aID]
 
-	key := s.player.Inventory.GetType(comp.TypeItem)
+	key := player.Inventory.GetType(comp.TypeItem)
 	if key == nil {
 		return nil
 	}
 
 	// Use key
-	commands = append(commands, command.RemoveFromInventory(s.player.Inventory, key))
+	commands = append(commands, command.RemoveFromInventory(player.Inventory, key))
 
 	// Remove door
 	commands = append(commands, entitymanager.RemoveEntity(s.lifeCycler, door.ID))

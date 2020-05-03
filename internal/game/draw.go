@@ -11,7 +11,7 @@ import (
 
 const (
 	gridSize   = 16
-	borderSize = 2
+	borderSize = 1
 )
 
 func (g *Game) drawGrid(screen *ebiten.Image) {
@@ -27,7 +27,7 @@ func (g *Game) drawWall(screen *ebiten.Image) {
 		if i == 2 {
 			continue
 		}
-		drawutil.DrawSprite(screen, comp.P(i, 2), comp.SpriteWall.Image)
+		drawutil.DrawSprite(screen, comp.PP(i, 2), comp.SpriteWall.Image)
 	}
 }
 
@@ -46,8 +46,8 @@ func (g *Game) drawGameFinished(screen *ebiten.Image) {
 
 func (g *Game) drawGameOngoing(screen *ebiten.Image) {
 	ebitenutil.DebugPrintAt(screen, "press 'z' to undo", 10, 2*70)
-	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("step: %d", g.GameState.step), 2*60, 0)
-	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("turn: %d", g.GameState.turn), 2*60, 15)
+	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("actions left: %d", actionsPerTurn - g.ActionStack.actions), 2*60, 0)
+	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("turn: %d", g.ActionStack.turn), 2*60, 15)
 
 	// Draw stack
 	for i, s := range g.events {

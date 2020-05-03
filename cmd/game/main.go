@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	g := game.NewGame()
+	g := game.NewDefaultGame(1)
 	ebiten.SetRunnableOnUnfocused(true)
 	ebiten.SetWindowSize(640,480)
 	if err := ebiten.RunGame(g); err != nil {

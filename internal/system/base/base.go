@@ -16,17 +16,17 @@ var _ system.System = &Base{}
 
 type Base struct {
 	entities   map[comp.ID]BaseEntity
+	players    map[comp.ID]*unit.Player
 	logger     *zap.SugaredLogger
 	lifeCycler entitymanager.EntityLifeCycler
-	player *unit.Player
 }
 
-func NewSystem(logLevel zapcore.Level, lifeCycler entitymanager.EntityLifeCycler, player *unit.Player) *Base {
+func NewSystem(logLevel zapcore.Level, lifeCycler entitymanager.EntityLifeCycler) *Base {
 	return &Base{
 		entities:   map[comp.ID]BaseEntity{},
-		logger:   logger.NewNamed("base", logLevel, logger.Green),
+		players:    map[comp.ID]*unit.Player{},
+		logger:     logger.NewNamed("base", logLevel, logger.Green),
 		lifeCycler: lifeCycler,
-		player: player,
 	}
 }
 
@@ -46,7 +46,7 @@ func (s *BaseEntity) GetSource() interface{} {
 }
 
 func (s *Base) Update(evt event.Event) []*command.Command {
-	switch v := evt.(type)  {
+	switch v := evt.(type) {
 	case event.TakeItem:
 		return s.takeItem(v.Actor, v.Target)
 	case event.OpenChest:
@@ -66,10 +66,17 @@ func (s *Base) Add(v interface{}) {
 	e := BaseEntity{
 		Entity:   i.GetEntity(),
 		Position: i.GetPosition(),
-		source: v,
+		source:   v,
 	}
 	s.logger.Info("entity added")
 	s.entities[e.ID] = e
+
+	// Add potential player to player list
+	p, ok := v.(*unit.Player)
+	if !ok {
+		return
+	}
+	s.players[p.ID] = p
 }
 
 func (s *Base) Remove(id comp.ID) {

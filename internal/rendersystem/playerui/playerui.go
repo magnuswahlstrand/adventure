@@ -20,7 +20,7 @@ type PlayerUI struct {
 
 func (s *PlayerUI) Draw(screen *ebiten.Image) {
 	for i, item := range s.player.Inventory.Inventory {
-		drawutil.DrawSprite(screen, comp.P(i,10), item.GetSprite().Image)
+		drawutil.DrawSprite(screen, comp.PP(i,10), item.GetSprite().Image)
 	}
 }
 

@@ -1,6 +1,7 @@
 package comp
 
 import (
+	"fmt"
 	"github.com/google/uuid"
 )
 
@@ -45,4 +46,15 @@ type Removable interface {
 
 func NewID() ID {
 	return ID(uuid.New().String())
+}
+
+var typeCounter = map[Type]int64{}
+
+func ResetTypeCounter() {
+	typeCounter = map[Type]int64{}
+}
+
+func NewIDFromType(typ Type) ID {
+	typeCounter[typ] = typeCounter[typ] + 1
+	return ID(fmt.Sprintf("%s_%04d", typ, typeCounter[typ]))
 }

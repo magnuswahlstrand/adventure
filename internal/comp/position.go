@@ -4,8 +4,12 @@ type Position struct {
 	X, Y int
 }
 
-func P(x, y int) *Position {
+func PP(x, y int) *Position {
 	return &Position{x,y}
+}
+
+func P(x, y int) Position {
+	return Position{x,y}
 }
 
 func (p *Position) GetPosition() *Position {

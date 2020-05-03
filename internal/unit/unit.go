@@ -1,6 +1,8 @@
 package unit
 
-import "github.com/kyeett/single-player-game/internal/comp"
+import (
+	"github.com/kyeett/single-player-game/internal/comp"
+)
 
 type Player struct {
 	comp.Entity
@@ -45,10 +47,10 @@ type Goal struct {
 func NewEnemySnake(x, y int) *Enemy {
 	return &Enemy{
 		comp.Entity{
-			comp.NewID(),
+			comp.NewIDFromType(comp.TypeEnemy),
 			comp.TypeEnemy,
 		},
-		comp.P(x, y),
+		comp.PP(x, y),
 		comp.SpriteEnemySnake,
 		comp.HP(3),
 	}
@@ -57,23 +59,34 @@ func NewEnemySnake(x, y int) *Enemy {
 func NewEnemyRat(x, y int) *Enemy {
 	return &Enemy{
 		comp.Entity{
-			comp.NewID(),
+			comp.NewIDFromType(comp.TypeEnemy),
 			comp.TypeEnemy,
 		},
-		comp.P(x, y),
+		comp.PP(x, y),
 		comp.SpriteEnemyRat,
 		comp.HP(2),
 	}
 }
 
 func NewPlayer(x, y int) *Player {
+	entity := comp.Entity{
+		comp.NewIDFromType(comp.TypePlayer),
+		comp.TypePlayer,
+	}
+	var sprite *comp.Sprite
+	switch entity.ID {
+	case "player_0002":
+		sprite = comp.SpritePlayer2
+	case "player_0001":
+		sprite = comp.SpritePlayer
+	default:
+		sprite = comp.SpritePlayer
+	}
+
 	return &Player{
-		comp.Entity{
-			comp.NewID(),
-			comp.TypePlayer,
-		},
-		comp.P(x, y),
-		comp.SpritePlayer,
+		entity,
+		comp.PP(x, y),
+		sprite,
 		comp.HP(5),
 		&comp.Inventory{},
 	}
@@ -82,10 +95,10 @@ func NewPlayer(x, y int) *Player {
 func NewChest(x, y int) *Chest {
 	return &Chest{
 		comp.Entity{
-			comp.NewID(),
+			comp.NewIDFromType(comp.TypeChest),
 			comp.TypeChest,
 		},
-		comp.P(x, y),
+		comp.PP(x, y),
 		comp.SpriteChest,
 		&comp.Content{"key"},
 	}
@@ -94,10 +107,10 @@ func NewChest(x, y int) *Chest {
 func NewItem(x, y int) *Item {
 	return &Item{
 		comp.Entity{
-			comp.NewID(),
+			comp.NewIDFromType(comp.TypeItem),
 			comp.TypeItem,
 		},
-		comp.P(x, y),
+		comp.PP(x, y),
 		comp.SpriteKey,
 	}
 }
@@ -105,10 +118,10 @@ func NewItem(x, y int) *Item {
 func NewDoor(x, y int) *Door {
 	return &Door{
 		comp.Entity{
-			comp.NewID(),
+			comp.NewIDFromType(comp.TypeDoor),
 			comp.TypeDoor,
 		},
-		comp.P(x, y),
+		comp.PP(x, y),
 		comp.SpriteDoor,
 	}
 }
@@ -116,10 +129,10 @@ func NewDoor(x, y int) *Door {
 func NewGoal(x, y int) *Goal {
 	return &Goal{
 		comp.Entity{
-			comp.NewID(),
+			comp.NewIDFromType(comp.TypeGoal),
 			comp.TypeGoal,
 		},
-		comp.P(x, y),
+		comp.PP(x, y),
 		comp.SpriteGoal,
 	}
 }

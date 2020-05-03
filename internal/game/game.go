@@ -5,6 +5,7 @@ import (
 	"github.com/kyeett/single-player-game/internal/command"
 	"github.com/kyeett/single-player-game/internal/comp"
 	"github.com/kyeett/single-player-game/internal/event"
+	"github.com/kyeett/single-player-game/internal/inputhandler"
 	"github.com/kyeett/single-player-game/internal/logger"
 	"github.com/kyeett/single-player-game/internal/rendersystem"
 	"github.com/kyeett/single-player-game/internal/rendersystem/playerui"
@@ -21,13 +22,15 @@ import (
 )
 
 type Game struct {
-	*GameState
-	translation   *translation.Translation
+	*ActionStack
+	InputHandlers map[comp.ID]inputhandler.InputHandler
 	systems       []system.System
 	rendersystems []rendersystem.System
 	lookup        map[comp.ID]interface{}
 	logger        *zap.SugaredLogger
 	state         *string
+	activePlayer  *unit.Player
+	playerList    []*unit.Player
 }
 
 func (g *Game) FindEntityByID(id comp.ID) interface{} {
@@ -39,58 +42,79 @@ func (g *Game) FindEntityByID(id comp.ID) interface{} {
 	return e
 }
 
-type GameState struct {
+type ActionStack struct {
 	stack                []*command.Command
 	updatedThisIteration bool
-	step                 int64
+	actions              int64
 	turn                 int64
 	events               []event.Event
 }
 
-func NewGame() *Game {
+func stringPointer(s string) *string {
+	return &s
+}
 
-	p := unit.NewPlayer(2, 3)
+func NewGame(players ...*unit.Player) *Game {
+	comp.ResetTypeCounter()
 
-
-	e := unit.NewEnemySnake(4, 5)
-	e2 := unit.NewEnemyRat(5, 4)
-
-	c := unit.NewChest(5, 5)
-
-	d := unit.NewDoor(2, 2)
-	gl := unit.NewGoal(2, 0)
-
-	state := "started"
+	firstPlayer := players[0]
 	g := &Game{
-		GameState: NewGameState(),
+		ActionStack: NewGameState(),
 		rendersystems: []rendersystem.System{
 			rendersystem.NewRender(zap.InfoLevel),
-			playerui.NewRender(zap.InfoLevel, p),
+			playerui.NewRender(zap.InfoLevel, firstPlayer),
 		},
-		lookup: map[comp.ID]interface{}{},
-		logger: logger.NewNamed("game", zap.InfoLevel, logger.BrightWhite),
-		state: &state,
+		lookup:       map[comp.ID]interface{}{},
+		logger:       logger.NewNamed("game", zap.InfoLevel, logger.BrightWhite),
+		state:        stringPointer("started"),
+		activePlayer: firstPlayer,
+		playerList:   players,
 	}
 
-	trans := translation.NewTranslation(zap.DebugLevel, g, p)
 	systems := []system.System{
-		trans,
-		base.NewSystem(zap.InfoLevel, g, p),
+		base.NewSystem(zap.InfoLevel, g),
 		movement.NewSystem(zap.InfoLevel),
 		attack.NewSystem(zap.InfoLevel, g),
 		death.NewSystem(zap.InfoLevel, g),
 		eventsys.NewSystem(zap.InfoLevel, g.state),
 	}
-	g.translation = trans
+
+	inputs := map[comp.ID]inputhandler.InputHandler{}
+	for _, p := range players {
+		h := translation.NewTranslation(zap.DebugLevel, p)
+		inputs[p.ID] = h
+		systems = append(systems, h)
+	}
+
+	g.InputHandlers = inputs
 	g.systems = systems
+	return g
+}
 
-	g.Add(p)
-	g.Add(e)
-	g.Add(e2)
-	g.Add(c)
-	g.Add(d)
-	g.Add(gl)
+func NewDefaultGame(numPlayers int) *Game {
+	p := unit.NewPlayer(2, 3)
 
+	units := []interface{}{
+		unit.NewEnemySnake(4, 5),
+		unit.NewEnemyRat(5, 4),
+		unit.NewChest(5, 5),
+		unit.NewDoor(2, 2),
+		unit.NewGoal(2, 0),
+	}
+
+	players := []*unit.Player{p}
+	units = append(units, p)
+	if numPlayers > 1 {
+		p2 := unit.NewPlayer(2, 4)
+		players = append(players, p2)
+		units = append(units, p2)
+	}
+
+
+	g := NewGame(players...)
+	for _, u := range units {
+		g.Add(u)
+	}
 	return g
 }
 
@@ -111,6 +135,7 @@ func (g *Game) Add(v interface{}) {
 	for _, rs := range g.rendersystems {
 		rs.Add(v)
 	}
+
 }
 
 func (g *Game) Remove(id comp.ID) {
@@ -122,12 +147,11 @@ func (g *Game) Remove(id comp.ID) {
 	}
 }
 
-func NewGameState() *GameState {
-	return &GameState{
+func NewGameState() *ActionStack {
+	return &ActionStack{
 		stack: []*command.Command{},
 	}
 }
-
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
 	return outsideWidth / 2, outsideHeight / 2
@@ -139,13 +163,13 @@ func (g *Game) execute(commands []*command.Command) {
 	}
 
 	// Mark update as true
-	g.GameState.updatedThisIteration = true
+	g.ActionStack.updatedThisIteration = true
 
 	for _, c := range commands {
 		if err := c.Execute(); err != nil {
 			log.Fatal(err)
 		}
-		c.Step = g.GameState.step
+		c.Step = g.ActionStack.actions
 		g.stack = append(g.stack, c)
 	}
 }
@@ -177,25 +201,36 @@ func (g *Game) undo() {
 	}
 
 	if updated {
-		g.GameState.step--
+		g.ActionStack.actions--
 		g.events = g.events[:len(g.events)-1]
 	}
 }
 
 func (g *Game) incrementStep() {
-	if g.GameState.updatedThisIteration {
-		g.GameState.step++
+	if g.ActionStack.updatedThisIteration {
+		g.ActionStack.actions++
 	}
 }
 
-const stepsPerTurn = 5
+const actionsPerTurn = 3
 
 func (g *Game) incrementRound() {
-	if g.GameState.step > stepsPerTurn {
-		g.GameState.step = 0
-		g.GameState.turn++
-		g.GameState.stack = nil
-		g.GameState.events = nil
+	endOfTurn := g.ActionStack.actions >= actionsPerTurn
+	if endOfTurn {
+		g.ActionStack.actions = 0
+		g.ActionStack.turn++
+		g.ActionStack.stack = nil
+		g.ActionStack.events = nil
+
+		for i, p := range g.playerList {
+			// Go to next player
+
+			if p == g.activePlayer {
+				n := (i + 1) % len(g.playerList)
+				g.activePlayer = g.playerList[n]
+				break
+			}
+		}
 	}
 }
 

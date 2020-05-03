@@ -8,12 +8,13 @@ import (
 )
 
 var (
-	SpriteWall, SpritePlayer, SpriteEnemySnake, SpriteEnemyRat, SpriteChest, SpriteKey, SpriteGoal, SpriteDoor *Sprite
+	SpriteWall, SpritePlayer, SpritePlayer2, SpriteEnemySnake, SpriteEnemyRat, SpriteChest, SpriteKey, SpriteGoal, SpriteDoor *Sprite
 )
 
 func init() {
 	SpriteWall = &Sprite{loadImageOrFatal("assets/images/tile_0001.png")}
 	SpritePlayer = &Sprite{loadImageOrFatal("assets/images/tile_0004.png")}
+	SpritePlayer2 = &Sprite{loadImageOrFatal("assets/images/tile_0006.png")}
 	SpriteEnemySnake = &Sprite{loadImageOrFatal("assets/images/tile_0014.png")}
 	SpriteEnemyRat = &Sprite{loadImageOrFatal("assets/images/tile_0016.png")}
 	SpriteDoor = &Sprite{loadImageOrFatal("assets/images/tile_0024.png")}

@@ -5,8 +5,8 @@ import (
 	"github.com/hajimehoshi/ebiten/inpututil"
 	"github.com/kyeett/single-player-game/internal/command"
 	"github.com/kyeett/single-player-game/internal/comp"
-	"github.com/kyeett/single-player-game/internal/entitymanager"
 	"github.com/kyeett/single-player-game/internal/event"
+	"github.com/kyeett/single-player-game/internal/inputhandler"
 	"github.com/kyeett/single-player-game/internal/logger"
 	"github.com/kyeett/single-player-game/internal/system"
 	"github.com/kyeett/single-player-game/internal/unit"
@@ -15,20 +15,19 @@ import (
 )
 
 var _ system.System = &Translation{}
+var _ inputhandler.InputHandler = &Translation{}
 
 type Translation struct {
 	entities   map[comp.ID]TranslatableEntity
 	logger     *zap.SugaredLogger
-	lifeCycler entitymanager.EntityLifeCycler
 
 	player *unit.Player
 }
 
-func NewTranslation(logLevel zapcore.Level, lifeCycler entitymanager.EntityLifeCycler, player *unit.Player) *Translation {
+func NewTranslation(logLevel zapcore.Level, player *unit.Player) *Translation {
 	return &Translation{
 		entities:   map[comp.ID]TranslatableEntity{},
 		logger:     logger.NewNamed("transl", logLevel, logger.Yellow),
-		lifeCycler: lifeCycler,
 		player:     player,
 	}
 }
@@ -73,7 +72,7 @@ func (s *Translation) Remove(id comp.ID) {
 func (s *Translation) MoveBy(dx, dy int) *comp.Position {
 	pos := s.player.Position
 	x0, y0 := pos.X, pos.Y
-	return comp.P(x0+dx, y0+dy)
+	return comp.PP(x0+dx, y0+dy)
 }
 
 func (s *Translation) GetEvent() event.Event {
