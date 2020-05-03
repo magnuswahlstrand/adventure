@@ -2,12 +2,7 @@
 
 ## Roadmap
 
-### v0.6 - Multiplayer
-
-##### Multiplayer
-* [ ] Simple multiplayer
-    * [ ] Broadcast events
-    * [ ] Receive events
+### v0.7
 
 ---
 
@@ -25,6 +20,14 @@
 * [ ] Proper walls
 
 ## Completed
+
+### v0.6 - Multiplayer
+
+##### Multiplayer
+* [x] Simple multiplayer
+    * [x] Broadcast events
+    * [x] Receive events
+
 
 ### v0.5
 

@@ -150,7 +150,10 @@ func (g *Game) incrementRound() {
 		g.ActionStack.turn++
 		g.ActionStack.stack = nil
 
-		//g.network.Broadcast(g.ActionStack.events)
+		if !g.activePlayer.Remote {
+			g.network.Broadcast(g.ActionStack.events)
+		}
+
 
 		g.ActionStack.events = nil
 

@@ -1,13 +1,14 @@
 package network
 
 import (
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"github.com/gorilla/websocket"
-	"github.com/kyeett/adventure/internal/comp"
 	"github.com/kyeett/adventure/internal/event"
 	"log"
 	"net/url"
+	"sync"
 )
 
 var _ Controller = &NoOp{}
@@ -23,7 +24,10 @@ type Controller interface {
 }
 
 type WebsocketConnection struct {
-	conn *websocket.Conn
+	conn             *websocket.Conn
+	events           map[int64]event.Event
+	lock             *sync.Mutex
+	sentN, receivedN int64
 }
 
 func NewWebsocketConnection(roomID string) *WebsocketConnection {
@@ -37,7 +41,9 @@ func NewWebsocketConnection(roomID string) *WebsocketConnection {
 	}
 
 	wsConn := &WebsocketConnection{
-		conn: c,
+		conn:   c,
+		events: map[int64]event.Event{},
+		lock:   &sync.Mutex{},
 	}
 
 	go wsConn.Start()
@@ -45,39 +51,81 @@ func NewWebsocketConnection(roomID string) *WebsocketConnection {
 	return wsConn
 }
 
-type envelope struct{
-	typ string
-	event.Event
+type envelope struct {
+	Type  string
+	Event string
+	N     int64
 }
 
 func (c *WebsocketConnection) Broadcast(events []event.Event) {
+	fmt.Println("broadcast!!")
 	for _, evt := range events {
-		err := c.conn.WriteJSON(envelope{
-			typ:   string(evt.Type()),
-			Event: evt,
+		b, err := json.Marshal(evt)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		c.lock.Lock()
+		n := c.sentN
+		c.sentN++
+		c.lock.Unlock()
+		err = c.conn.WriteJSON(envelope{
+			Type:  string(evt.Type()),
+			Event: base64.StdEncoding.EncodeToString(b),
+			N: n,
 		})
 		if err != nil {
 			log.Fatal(err)
 		}
+
+
 	}
 }
 
-func (c *WebsocketConnection) GetEvents() event.Event    {
-	return event.Move{
-		Actor:    "player_0002",
-		Position: comp.Position{1,1},
+func (c *WebsocketConnection) GetEvents() event.Event {
+	c.lock.Lock()
+	defer c.lock.Unlock()
+
+	evt, found := c.events[c.receivedN]
+	if !found {
+		return nil
 	}
+	c.receivedN++
+	return evt
 }
 
 func (c *WebsocketConnection) Start() {
 	for {
-		_, message, err := c.conn.ReadMessage()
-
 		var env envelope
-		if err != json.Unmarshal(message, &env) {
-			log.Fatal(err)
+		err := c.conn.ReadJSON(&env)
+		if err != nil {
+			log.Fatal("read:", err)
 		}
 
-		fmt.Println("received ", env.typ)
+		var receivedEvent event.Event
+		switch env.Type {
+		case "Move":
+
+			b, err := base64.StdEncoding.DecodeString(env.Event)
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			var evt event.Move
+			if err := json.Unmarshal(b, &evt); err != nil {
+				log.Fatal("unmarshal:", err)
+			}
+
+			receivedEvent = evt
+
+		default:
+			log.Fatal("invalid type")
+			continue
+		}
+
+		fmt.Printf("received %#v\n", receivedEvent)
+		c.lock.Lock()
+		c.events[env.N] = receivedEvent
+		c.lock.Unlock()
 	}
 }
