@@ -2,14 +2,10 @@
 
 ## Roadmap
 
-### v0.5
-
-##### System
-* [x] Run game without UI
+### v0.6 - Multiplayer
 
 ##### Multiplayer
-* [ ] Control multiple players from test 
-* [x] Multiplayer hotseat
+* [ ] Simple multipalyer
 
 ---
 
@@ -26,12 +22,16 @@
 * [ ] Play sounds
 * [ ] Proper walls
 
-##### Multiplayer
-
-* [ ] Broadcast commands
-
 ## Completed
 
+### v0.5
+
+##### System
+* [x] Run game without UI
+
+##### Multiplayer
+* [x] Control multiple players from test 
+* [x] Local hotseat
 
 ### v0.4
 
