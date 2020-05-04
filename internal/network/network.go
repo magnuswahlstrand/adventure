@@ -1,13 +1,15 @@
 package network
 
 import (
+	"context"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
-	"github.com/gorilla/websocket"
+	"nhooyr.io/websocket"
 	"github.com/kyeett/adventure/internal/event"
 	"log"
 	"net/url"
+	"nhooyr.io/websocket/wsjson"
 	"sync"
 )
 
@@ -34,8 +36,7 @@ func NewWebsocketConnection(roomID string) *WebsocketConnection {
 	u := url.URL{Scheme: "wss", Host: "room-server-game.herokuapp.com"}
 	u.Path = "/room/" + roomID
 	log.Printf("connecting to %s", u.String())
-
-	c, _, err := websocket.DefaultDialer.Dial(u.String(), nil)
+	c, _, err := websocket.Dial(context.Background(), u.String(), nil)
 	if err != nil {
 		log.Fatal("dial:", err)
 	}
@@ -48,6 +49,8 @@ func NewWebsocketConnection(roomID string) *WebsocketConnection {
 
 	go wsConn.Start()
 
+
+	log.Printf("connected, and started")
 	return wsConn
 }
 
@@ -57,28 +60,35 @@ type envelope struct {
 	N     int64
 }
 
+
+func (c *WebsocketConnection) WriteEvent(evt event.Event) error {
+	c.lock.Lock()
+	n := c.sentN
+	c.sentN++
+	c.lock.Unlock()
+
+	b, err := json.Marshal(evt)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	env := envelope{
+		Type:  string(evt.Type()),
+		Event: base64.StdEncoding.EncodeToString(b),
+		N:     n,
+	}
+
+	if err := wsjson.Write(context.Background(), c.conn, env); err != nil {
+		log.Fatal(err)
+	}
+	return nil
+}
+
+
 func (c *WebsocketConnection) Broadcast(events []event.Event) {
 	fmt.Println("broadcast!!")
 	for _, evt := range events {
-		b, err := json.Marshal(evt)
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		c.lock.Lock()
-		n := c.sentN
-		c.sentN++
-		c.lock.Unlock()
-		err = c.conn.WriteJSON(envelope{
-			Type:  string(evt.Type()),
-			Event: base64.StdEncoding.EncodeToString(b),
-			N: n,
-		})
-		if err != nil {
-			log.Fatal(err)
-		}
-
-
+		c.WriteEvent(evt)
 	}
 }
 
@@ -95,37 +105,58 @@ func (c *WebsocketConnection) GetEvents() event.Event {
 }
 
 func (c *WebsocketConnection) Start() {
+	fmt.Println("starting connection")
 	for {
 		var env envelope
-		err := c.conn.ReadJSON(&env)
-		if err != nil {
+		if err := wsjson.Read(context.Background(), c.conn, &env); err != nil {
 			log.Fatal("read:", err)
 		}
 
 		var receivedEvent event.Event
 		switch env.Type {
-		case "Move":
-
-			b, err := base64.StdEncoding.DecodeString(env.Event)
-			if err != nil {
-				log.Fatal(err)
-			}
-
+		case event.TypeMove:
 			var evt event.Move
-			if err := json.Unmarshal(b, &evt); err != nil {
-				log.Fatal("unmarshal:", err)
-			}
-
+			c.decodeAndUnmarshal(env, &evt)
+			receivedEvent = evt
+		case event.TypeAttack:
+			var evt event.Attack
+			c.decodeAndUnmarshal(env, &evt)
+			receivedEvent = evt
+		case event.TypeOpenChest:
+			var evt event.OpenChest
+			c.decodeAndUnmarshal(env, &evt)
+			receivedEvent = evt
+		case event.TypeTakeItem:
+			var evt event.TakeItem
+			c.decodeAndUnmarshal(env, &evt)
+			receivedEvent = evt
+		case event.TypeOpenDoor:
+			var evt event.OpenDoor
+			c.decodeAndUnmarshal(env, &evt)
+			receivedEvent = evt
+		case event.TypeReachGoal:
+			var evt event.ReachGoal
+			c.decodeAndUnmarshal(env, &evt)
 			receivedEvent = evt
 
 		default:
 			log.Fatal("invalid type")
-			continue
 		}
 
 		fmt.Printf("received %#v\n", receivedEvent)
 		c.lock.Lock()
 		c.events[env.N] = receivedEvent
 		c.lock.Unlock()
+	}
+}
+
+func (c *WebsocketConnection) decodeAndUnmarshal(env envelope, v event.Event) {
+	b, err := base64.StdEncoding.DecodeString(env.Event)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	if err := json.Unmarshal(b, v); err != nil {
+		log.Fatal("unmarshal:", err)
 	}
 }
