@@ -20,7 +20,7 @@ type PlayerUI struct {
 
 func (s *PlayerUI) Draw(screen *ebiten.Image) {
 	for i, item := range s.player.Inventory.Inventory {
-		drawutil.DrawSprite(screen, comp.PP(i,10), item.GetSprite().Image)
+		drawutil.DrawSprite(screen, comp.PP(i+10,13), item.GetSprite().Image)
 	}
 }
 
@@ -31,6 +31,6 @@ func NewRender(logLevel zapcore.Level, player *unit.Player) *PlayerUI {
 	}
 }
 
-func (s *PlayerUI) Add(v interface{}) {}
+func (s *PlayerUI) Add(_ interface{}) {}
 
-func (s *PlayerUI) Remove(id comp.ID) {}
+func (s *PlayerUI) Remove(_ comp.ID) {}

@@ -109,6 +109,11 @@ func (a Application) Layout(outsideWidth, outsideHeight int) (screenWidth, scree
 }
 
 func New() *Application {
-	g := game.NewWebsocketGame(true)
+	g := game.NewDefaultGame(1)
+	return &Application{g, StateStarted, ModeSingle, &sync.RWMutex{}}
+}
+
+func NewTest() *Application {
+	g := game.NewDefaultGame(1)
 	return &Application{g, StateStarted, ModeHostMultiplayer, &sync.RWMutex{}}
 }

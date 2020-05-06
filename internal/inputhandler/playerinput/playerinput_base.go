@@ -14,21 +14,34 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
-var _ system.System = &Translation{}
-var _ inputhandler.InputHandler = &Translation{}
+var _ system.System = &PlayerInputHandler{}
+var _ inputhandler.InputHandler = &PlayerInputHandler{}
 
-type Translation struct {
-	entities   map[comp.ID]TranslatableEntity
-	logger     *zap.SugaredLogger
+type PlayerInputHandler struct {
+	entities map[comp.ID]TranslatableEntity
+	logger   *zap.SugaredLogger
 
-	player *unit.Player
+	hasWalls map[comp.Position]bool
+	player   *unit.Player
+
+	width, height int
 }
 
-func NewTranslation(logLevel zapcore.Level, player *unit.Player) *Translation {
-	return &Translation{
-		entities:   map[comp.ID]TranslatableEntity{},
-		logger:     logger.NewNamed("transl", logLevel, logger.Yellow),
-		player:     player,
+func NewHandler(logLevel zapcore.Level, player *unit.Player, wallPositions []comp.Position, width, height int) *PlayerInputHandler {
+
+	hasWalls := map[comp.Position]bool{}
+	for _, p := range wallPositions {
+		hasWalls[p] = true
+	}
+
+	return &PlayerInputHandler{
+		entities: map[comp.ID]TranslatableEntity{},
+		logger:   logger.NewNamed("transl", logLevel, logger.Yellow),
+		player:   player,
+		hasWalls: hasWalls,
+
+		width:  width,
+		height: height,
 	}
 }
 
@@ -47,11 +60,11 @@ func (s *TranslatableEntity) GetSource() interface{} {
 	return s.source
 }
 
-func (s *Translation) Update(_ event.Event) []*command.Command {
+func (s *PlayerInputHandler) Update(_ event.Event) []*command.Command {
 	return nil
 }
 
-func (s *Translation) Add(v interface{}) {
+func (s *PlayerInputHandler) Add(v interface{}) {
 	i, ok := v.(Translatable)
 	if !ok {
 		return
@@ -65,17 +78,17 @@ func (s *Translation) Add(v interface{}) {
 	s.entities[e.ID] = e
 }
 
-func (s *Translation) Remove(id comp.ID) {
+func (s *PlayerInputHandler) Remove(id comp.ID) {
 	delete(s.entities, id)
 }
 
-func (s *Translation) MoveBy(dx, dy int) *comp.Position {
+func (s *PlayerInputHandler) MoveBy(dx, dy int) *comp.Position {
 	pos := s.player.Position
 	x0, y0 := pos.X, pos.Y
 	return comp.PP(x0+dx, y0+dy)
 }
 
-func (s *Translation) GetEvent() event.Event {
+func (s *PlayerInputHandler) GetEvent() event.Event {
 	// Interpret events
 	var mv *comp.Position
 	switch {
