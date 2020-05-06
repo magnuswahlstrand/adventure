@@ -53,7 +53,7 @@ func (g *Game) Add(v interface{}) {
 
 	e, valid := v.(Entity)
 	if !valid {
-		log.Fatal("not an entity")
+		log.Fatalf("not an entity: %v", e)
 	}
 	g.lookup[e.GetEntity().ID] = e
 
@@ -137,7 +137,7 @@ func (g *Game) incrementStep() {
 	}
 }
 
-const actionsPerTurn = 3
+const actionsPerTurn = 6
 
 func (g *Game) incrementRound() {
 	endOfTurn := g.ActionStack.actions >= actionsPerTurn

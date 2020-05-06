@@ -12,16 +12,16 @@ var (
 	TheNil  = TranslatableEntity{Entity: comp.Entity{Type: comp.TypeNil}}
 )
 
-func (s *Translation) findAtPosition(p *comp.Position) TranslatableEntity {
-	if p.X >= 6 || p.X < 0 {
+func (s *PlayerInputHandler) findAtPosition(p *comp.Position) TranslatableEntity {
+	if p.X > s.width || p.X < 0 {
 		return TheWall
 	}
 
-	if p.Y >= 6 || p.Y < 0 {
+	if p.Y > s.height || p.Y < 0 {
 		return TheWall
 	}
 
-	if p.Y == 2 && p.X != 2 {
+	if s.hasWalls[*p] {
 		return TheWall
 	}
 
@@ -34,7 +34,7 @@ func (s *Translation) findAtPosition(p *comp.Position) TranslatableEntity {
 	return TheNil
 }
 
-func (s *Translation) findByID(ID comp.ID) (TranslatableEntity, error) {
+func (s *PlayerInputHandler) findByID(ID comp.ID) (TranslatableEntity, error) {
 	e, found := s.entities[ID]
 	if !found {
 		return TranslatableEntity{}, errors.New("not found")
@@ -43,7 +43,7 @@ func (s *Translation) findByID(ID comp.ID) (TranslatableEntity, error) {
 	return e, nil
 }
 
-func (s *Translation) playerInteract(target TranslatableEntity) event.Event {
+func (s *PlayerInputHandler) playerInteract(target TranslatableEntity) event.Event {
 	s.logger.Debug(fmt.Sprintf("player interact with %v", target))
 	switch target.Type {
 	case comp.TypeEnemy:

@@ -1,7 +1,6 @@
 
 
 ## Roadmap
-
 ---
 
 ### Future (v0.x)
@@ -18,6 +17,13 @@
 * [ ] Proper walls
 
 ## Completed
+
+### v0.8 - Support tile maps
+
+##### System
+* [x] Use map data
+* [x] Load map from Tiled
+* [x] Proper wall handling
 
 ### v0.7 - Multiplayer WASM + all commands
 

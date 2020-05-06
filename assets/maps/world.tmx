@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.2" tiledversion="1.2.1" orientation="orthogonal" renderorder="right-down" width="12" height="12" tilewidth="8" tileheight="8" infinite="0" nextlayerid="10" nextobjectid="2">
+ <tileset firstgid="1" name="colored_tilemap_packed" tilewidth="8" tileheight="8" tilecount="100" columns="10">
+  <image source="../images/colored_tilemap_packed.png" width="80" height="80"/>
+  <tile id="0" type="wall"/>
+  <tile id="1" type="wall"/>
+  <tile id="4" type="player_1"/>
+  <tile id="6" type="player_2"/>
+  <tile id="14" type="snake"/>
+  <tile id="16" type="rat"/>
+  <tile id="24" type="door"/>
+  <tile id="39" type="chest"/>
+  <tile id="57" type="key"/>
+  <tile id="81" type="goal"/>
+  <tile id="90" type="wall"/>
+  <tile id="91" type="wall"/>
+  <tile id="92" type="wall"/>
+  <tile id="93" type="wall"/>
+  <tile id="94" type="wall"/>
+  <tile id="95" type="wall"/>
+  <tile id="96" type="wall"/>
+  <tile id="97" type="wall"/>
+  <tile id="98" type="wall"/>
+  <tile id="99" type="wall"/>
+ </tileset>
+ <layer id="7" name="walls" width="12" height="12">
+  <data encoding="base64" compression="zlib">
+   eJyLZmBgiCESxwFxPAPxAKQ2GqqXAc0cXOqxmZ9IRfcgq4e5Dd1MZPWJSGLY9KagqcdGo7ORxaKRzID5E9lf0Uh24fIvsr8SkczDFZ74xLGFdQoecQBIVB2v
+  </data>
+ </layer>
+ <layer id="6" name="monsters" width="12" height="12">
+  <data encoding="base64" compression="zlib">
+   eJxjYBgF9Ab8RIrRCwhSoBcAHPgAMA==
+  </data>
+ </layer>
+ <layer id="8" name="players" width="12" height="12">
+  <data encoding="base64" compression="zlib">
+   eJxjYBgFIwGwAjE7DcwFAAZEAA0=
+  </data>
+ </layer>
+ <layer id="9" name="other" width="12" height="12">
+  <data encoding="base64" compression="zlib">
+   eJxjYKANCELjS9LInlGAHWjQyR4A3OgAlA==
+  </data>
+ </layer>
+</map>

@@ -8,7 +8,7 @@ import (
 
 const (
 	gridSize   = 16
-	borderSize = 1
+	borderSize = 0
 )
 
 func scale(scale float64, position *comp.Position) gfx.Vec {
