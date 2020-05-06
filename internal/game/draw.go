@@ -32,19 +32,6 @@ func (g *Game) drawWall(screen *ebiten.Image) {
 }
 
 func (g *Game) Draw(screen *ebiten.Image) {
-	switch *g.state {
-	case "finished":
-		g.drawGameFinished(screen)
-	default:
-		g.drawGameOngoing(screen)
-	}
-}
-
-func (g *Game) drawGameFinished(screen *ebiten.Image) {
-	ebitenutil.DebugPrintAt(screen, "game complete! press R to restart", 10, 2*70)
-}
-
-func (g *Game) drawGameOngoing(screen *ebiten.Image) {
 	ebitenutil.DebugPrintAt(screen, "press 'z' to undo", 10, 2*70)
 	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("actions left: %d", actionsPerTurn - g.ActionStack.actions), 2*60, 0)
 	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("turn: %d", g.ActionStack.turn), 2*60, 15)

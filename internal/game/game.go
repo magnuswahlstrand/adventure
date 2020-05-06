@@ -1,7 +1,6 @@
 package game
 
 import (
-	"github.com/hajimehoshi/ebiten"
 	"github.com/kyeett/adventure/internal/command"
 	"github.com/kyeett/adventure/internal/comp"
 	"github.com/kyeett/adventure/internal/event"
@@ -82,9 +81,6 @@ func NewGameState() *ActionStack {
 	}
 }
 
-func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
-	return outsideWidth / 2, outsideHeight / 2
-}
 
 func (g *Game) execute(commands []*command.Command) {
 	if commands == nil {
@@ -169,4 +165,4 @@ func (g *Game) incrementRound() {
 	}
 }
 
-var _ ebiten.Game = &Game{}
+

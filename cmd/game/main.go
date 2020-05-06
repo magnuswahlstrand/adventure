@@ -2,15 +2,15 @@ package main
 
 import (
 	"github.com/hajimehoshi/ebiten"
-	"github.com/kyeett/adventure/internal/game"
+	"github.com/kyeett/adventure/internal/application"
 	"log"
 )
 
 func main() {
-	g := game.NewDefaultGame(1)
+	a := application.New()
 	ebiten.SetRunnableOnUnfocused(true)
 	ebiten.SetWindowSize(640,480)
-	if err := ebiten.RunGame(g); err != nil {
+	if err := ebiten.RunGame(a); err != nil {
 		log.Fatal(err)
 	}
 }

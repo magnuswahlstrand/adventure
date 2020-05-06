@@ -11,6 +11,7 @@ import (
 	"net/url"
 	"nhooyr.io/websocket/wsjson"
 	"sync"
+	"time"
 )
 
 var _ Controller = &NoOp{}
@@ -36,7 +37,9 @@ func NewWebsocketConnection(roomID string) *WebsocketConnection {
 	u := url.URL{Scheme: "wss", Host: "room-server-game.herokuapp.com"}
 	u.Path = "/room/" + roomID
 	log.Printf("connecting to %s", u.String())
-	c, _, err := websocket.Dial(context.Background(), u.String(), nil)
+
+	ctx, _ := context.WithTimeout(context.Background(), 5*time.Second)
+	c, _, err := websocket.Dial(ctx, u.String(), nil)
 	if err != nil {
 		log.Fatal("dial:", err)
 	}
@@ -49,7 +52,6 @@ func NewWebsocketConnection(roomID string) *WebsocketConnection {
 
 	go wsConn.Start()
 
-
 	log.Printf("connected, and started")
 	return wsConn
 }
@@ -59,7 +61,6 @@ type envelope struct {
 	Event string
 	N     int64
 }
-
 
 func (c *WebsocketConnection) WriteEvent(evt event.Event) error {
 	c.lock.Lock()
@@ -83,7 +84,6 @@ func (c *WebsocketConnection) WriteEvent(evt event.Event) error {
 	}
 	return nil
 }
-
 
 func (c *WebsocketConnection) Broadcast(events []event.Event) {
 	fmt.Println("broadcast!!")
@@ -109,7 +109,8 @@ func (c *WebsocketConnection) Start() {
 	for {
 		var env envelope
 		if err := wsjson.Read(context.Background(), c.conn, &env); err != nil {
-			log.Fatal("read:", err)
+			log.Println("read:", err)
+			continue
 		}
 
 		var receivedEvent event.Event
@@ -140,7 +141,8 @@ func (c *WebsocketConnection) Start() {
 			receivedEvent = evt
 
 		default:
-			log.Fatal("invalid type")
+			log.Println("invalid type")
+			continue
 		}
 
 		fmt.Printf("received %#v\n", receivedEvent)

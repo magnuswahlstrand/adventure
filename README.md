@@ -2,15 +2,6 @@
 
 ## Roadmap
 
-### v0.7 - Multiplayer WASM + all commands
-
-##### System
-
-##### Multiplayer
-* [ ] Support multiplayer in WASM 
-  * https://github.com/nhooyr/websocket
-* [x] Support full command set 
-
 ---
 
 ### Future (v0.x)
@@ -28,13 +19,19 @@
 
 ## Completed
 
+### v0.7 - Multiplayer WASM + all commands
+
+##### Multiplayer
+* [x] Support multiplayer in WASM 
+  * https://github.com/nhooyr/websocket
+* [x] Support full command set 
+
 ### v0.6 - Multiplayer
 
 ##### Multiplayer
 * [x] Simple multiplayer
     * [x] Broadcast events
     * [x] Receive events
-
 
 ### v0.5
 
